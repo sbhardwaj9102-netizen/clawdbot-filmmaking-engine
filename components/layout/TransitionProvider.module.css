@@ -1,0 +1,44 @@
+.project {
+  position: fixed;
+  z-index: 90;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--ink);
+}
+
+.projectImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.projectShade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.curtainLabel {
+  font-family: var(--font-display);
+  font-stretch: 72%;
+  font-weight: 600;
+  font-size: clamp(2.5rem, 8vw, 8rem);
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-align: center;
+  padding: 0 var(--pad);
+}

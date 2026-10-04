@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Satyam Bhardwaj Reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a fixed 3D stage (the avatar + atmosphere) under scrolling, cursor-driven HTML scenes,
+   framed by a camera viewfinder HUD. One dark film world, so a single theme by choice. */
+:root {
+  --ink: #09090a;
+  --ink-2: #121214;
+  --bone: #eee7da;
+  --dim: rgba(238, 231, 218, .58);
+  --faint: rgba(238, 231, 218, .22);
+  --line: rgba(238, 231, 218, .13);
+  --tungsten: #ffb05c;
+  --rec: #ff4a36;
+  --accent: var(--tungsten);
+  --display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --pad: clamp(16px, 4vw, 64px);
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --ease-io: cubic-bezier(.76, 0, .24, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--ink); scroll-behavior: smooth; }
+body { margin: 0; background: radial-gradient(120% 90% at 70% 40%, #1b1712 0%, #0b0a0a 55%, #070707 100%) fixed var(--ink); color: var(--bone); font-family: var(--display); font-stretch: 100%; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; font-weight: inherit; }
+::selection { background: var(--bone); color: var(--ink); }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+.label { font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; }
+.display { font-family: var(--display); font-stretch: 68%; font-weight: 650; text-transform: uppercase; line-height: .86; letter-spacing: -.01em; text-wrap: balance; }
+.serif { font-family: var(--serif); font-style: italic; letter-spacing: -.01em; }
+
+/* ---------- stage + grain ---------- */
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.grain { position: fixed; inset: -100%; z-index: 60; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain .9s steps(6) infinite; }
+@keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-6%,4%)} 40%{transform:translate(5%,-7%)} 60%{transform:translate(-3%,8%)} 80%{transform:translate(7%,2%)} 100%{transform:translate(0,0)} }
+.vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.7) 100%); }
+
+/* ---------- viewfinder HUD ---------- */
+.hud { position: fixed; inset: 0; z-index: 50; pointer-events: none; font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
+.hud .c { position: absolute; width: 22px; height: 22px; border-color: var(--faint); border-style: solid; border-width: 0; }
+.hud .tl { top: 12px; left: 12px; border-top-width: 1px; border-left-width: 1px; }
+.hud .tr { top: 12px; right: 12px; border-top-width: 1px; border-right-width: 1px; }
+.hud .bl { bottom: 12px; left: 12px; border-bottom-width: 1px; border-left-width: 1px; }
+.hud .br { bottom: 12px; right: 12px; border-bottom-width: 1px; border-right-width: 1px; }
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 55; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 22px calc(var(--pad) + 8px) 0; pointer-events: none; }
+.topbar > * { pointer-events: auto; }
+.brand { font-family: var(--display); font-stretch: 75%; font-weight: 700; letter-spacing: .08em; font-size: 1rem; text-decoration: none; }
+.brand small { display: block; font-family: var(--mono); font-weight: 400; font-size: .58rem; letter-spacing: .2em; color: var(--dim); margin-top: .3rem; }
+.nav { display: flex; gap: clamp(.8rem, 2.2vw, 2.2rem); }
+.nav a { font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; text-decoration: none; color: var(--dim); transition: color .4s; position: relative; padding: .4rem 0; }
+.nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease); }
+.nav a:hover, .nav a.on { color: var(--bone); }
+.nav a.on::after, .nav a:hover::after { transform: scaleX(1); }
+.rec { display: inline-flex; gap: .55rem; align-items: center; }
+.rec i { width: 7px; height: 7px; border-radius: 50%; background: var(--rec); animation: blink 1.4s steps(2, jump-none) infinite; }
+@keyframes blink { to { opacity: .15; } }
+.hud-bottom { position: absolute; left: calc(var(--pad) + 8px); right: calc(var(--pad) + 8px); bottom: 22px; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.hud-bottom .lens { display: flex; gap: 1.4rem; }
+.hud-bottom b { color: var(--bone); font-weight: 600; }
+.scene-tag b { color: var(--accent); }
+.hud-top-right { position: absolute; right: calc(var(--pad) + 8px); top: 62px; text-align: right; display: grid; gap: .3rem; }
+.flash-tag { color: var(--bone); opacity: 0; transition: opacity .3s; }
+.flash-tag.on { opacity: 1; }
+
+/* ---------- viewfinder cursor ---------- */
+.vf { position: fixed; left: 0; top: 0; z-index: 70; pointer-events: none; width: 0; height: 0; display: none; }
+.has-vf .vf { display: block; }
+.has-vf, .has-vf * { cursor: none !important; }
+.vf .box { position: absolute; left: 0; top: 0; width: var(--w, 46px); height: var(--h, 32px); transform: translate(-50%, -50%); transition: width .5s var(--ease), height .5s var(--ease); }
+.vf .box span { position: absolute; width: 9px; height: 9px; border: 0 solid var(--bone); }
+.vf .box span:nth-child(1) { left: 0; top: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+.vf .box span:nth-child(2) { right: 0; top: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+.vf .box span:nth-child(3) { left: 0; bottom: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.vf .box span:nth-child(4) { right: 0; bottom: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+.vf .dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--rec); transform: translate(-50%, -50%); }
+.vf .txt { position: absolute; left: 0; top: 0; transform: translate(-50%, calc(var(--h, 32px) / 2 + 10px)); font-family: var(--mono); font-size: .6rem; letter-spacing: .18em; white-space: nowrap; color: var(--bone); text-transform: uppercase; }
+.vf .focus { position: absolute; left: 0; top: 0; transform: translate(calc(var(--w, 46px) / 2 + 10px), -50%); font-family: var(--mono); font-size: .56rem; color: var(--dim); letter-spacing: .1em; white-space: nowrap; }
+
+/* ---------- scenes ---------- */
+main { position: relative; z-index: 10; }
+section { position: relative; padding: 0 var(--pad); }
+.scene-head { display: flex; justify-content: space-between; align-items: end; gap: 2rem; flex-wrap: wrap; margin-bottom: clamp(2rem, 5vw, 4.5rem); }
+.slug { display: flex; gap: .9rem; align-items: center; color: var(--dim); margin-bottom: 1.4rem; }
+.slug::after { content: ""; width: 48px; height: 1px; background: currentColor; opacity: .5; }
+.scene-title { font-size: clamp(3.2rem, 11vw, 11rem); }
+.scene-note { max-width: 30ch; font-size: clamp(1.1rem, 1.6vw, 1.5rem); line-height: 1.2; color: var(--bone); }
+
+/* hero */
+#hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: clamp(70px, 12vh, 120px); }
+.hero-name { position: relative; z-index: 1; font-family: var(--display); text-transform: uppercase; line-height: .8; font-size: clamp(4.4rem, 12.5vw, 14rem); width: fit-content; mix-blend-mode: difference; letter-spacing: -.015em; user-select: none; }
+.hero-name .row { display: block; white-space: nowrap; }
+.hero-name .ch { display: inline-block; font-variation-settings: "wdth" var(--wd, 70), "wght" var(--wg, 640); transition: font-variation-settings .25s var(--ease), color .4s; }
+.hero-name .ch.hot { color: var(--accent); }
+.hero-under { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; margin-top: clamp(1.2rem, 2.5vw, 2.2rem); align-items: end; }
+.roles { grid-column: 1 / span 5; display: grid; gap: .3rem; font-stretch: 85%; font-weight: 500; font-size: clamp(.9rem, 1.25vw, 1.2rem); letter-spacing: .22em; text-transform: uppercase; }
+.tagline { grid-column: 6 / span 4; font-size: clamp(1.2rem, 2vw, 2rem); line-height: 1.12; max-width: 22ch; }
+.hint { grid-column: 10 / span 3; justify-self: end; text-align: right; color: var(--dim); }
+.hint b { color: var(--accent); font-weight: 400; }
+.proof { display: flex; gap: clamp(1.2rem, 3.5vw, 3.6rem); flex-wrap: wrap; margin-top: clamp(1.6rem, 3vw, 2.8rem); padding-top: 1.1rem; border-top: 1px solid var(--line); }
+.proof div { display: flex; gap: .7rem; align-items: end; }
+.proof strong { font-stretch: 68%; font-weight: 500; font-size: clamp(1.9rem, 3.4vw, 3.4rem); line-height: .8; font-variant-numeric: tabular-nums; }
+.proof span { display: grid; gap: .1rem; }
+.proof em { font-style: normal; color: var(--dim); }
+
+/* work */
+#work { padding-top: clamp(120px, 18vh, 200px); padding-bottom: 6rem; }
+.cards { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(14px, 2vw, 28px); perspective: 1400px; }
+.card { position: relative; grid-column: span 6; aspect-ratio: 16 / 10.5; border-radius: 4px; overflow: hidden; transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .7s var(--ease), box-shadow .7s var(--ease); box-shadow: 0 30px 80px -30px rgba(0,0,0,.8); background: #0d0d0e; text-align: left; isolation: isolate; }
+.card:nth-child(1) { grid-column: 1 / span 7; }
+.card:nth-child(2) { grid-column: 8 / span 5; aspect-ratio: auto; }
+.card:nth-child(3) { grid-column: 1 / span 5; aspect-ratio: 4 / 4.2; }
+.card:nth-child(4) { grid-column: 6 / span 7; }
+.card.live { transition: transform .12s linear, box-shadow .7s var(--ease); box-shadow: 0 50px 120px -30px rgba(0,0,0,.9), 0 0 0 1px var(--faint); }
+.card .img { position: absolute; inset: -6%; background-size: cover; background-position: center; transform: translate(var(--px, 0), var(--py, 0)) scale(1.04); transition: transform .9s var(--ease), filter .9s; filter: saturate(.85) brightness(.82); }
+.card.live .img { transition: transform .15s linear, filter .9s; filter: saturate(1) brightness(1); }
+.card .shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(5,5,6,.85), rgba(5,5,6,0) 55%); }
+.card .glare { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 220, 170, .22), transparent 45%); opacity: 0; transition: opacity .5s; mix-blend-mode: screen; }
+.card.live .glare { opacity: 1; }
+.card .meta { position: absolute; inset: auto clamp(14px, 2vw, 28px) clamp(14px, 2vw, 26px); display: grid; gap: .8rem; transform: translateZ(60px); }
+.card .num { position: absolute; top: clamp(14px, 2vw, 24px); left: clamp(14px, 2vw, 28px); transform: translateZ(40px); display: flex; gap: .8rem; align-items: center; }
+.card .num b { font-family: var(--display); font-stretch: 68%; font-weight: 500; font-size: 2rem; color: var(--bone); letter-spacing: 0; }
+.card .open { position: absolute; top: clamp(14px, 2vw, 24px); right: clamp(14px, 2vw, 28px); transform: translateZ(40px); opacity: 0; transition: opacity .5s; }
+.card.live .open { opacity: 1; }
+.card h3 { font-size: clamp(2.2rem, 5.6vw, 6.2rem); transition: letter-spacing .9s var(--ease); }
+.card.live h3 { letter-spacing: .01em; }
+.card .scale { display: flex; justify-content: space-between; gap: 1rem; color: var(--bone); padding-top: .8rem; border-top: 1px solid var(--faint); }
+
+/* screening room overlay */
+.screen { position: fixed; inset: 0; z-index: 80; display: grid; grid-template-rows: auto 1fr auto; background: #050505; opacity: 0; visibility: hidden; transition: opacity .6s var(--ease), visibility 0s .6s; }
+.screen.on { opacity: 1; visibility: visible; transition: opacity .6s var(--ease); }
+.screen .bar { height: 0; background: #000; transition: height .9s var(--ease-io); position: relative; z-index: 3; }
+.screen.on .bar { height: clamp(36px, 9vh, 90px); }
+.screen .view { position: relative; overflow: hidden; }
+.screen .plate { position: absolute; inset: -8%; background-size: cover; background-position: center; transform: translate(var(--sx, 0), var(--sy, 0)) scale(var(--sz, 1.08)); transition: background-image .6s, transform .25s linear; }
+.screen .plate.swap { animation: swap .9s var(--ease); }
+@keyframes swap { from { opacity: .2; filter: blur(8px); } to { opacity: 1; filter: none; } }
+.screen .veil { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,5,6,.92) 0%, rgba(5,5,6,.6) 38%, rgba(5,5,6,0) 70%); }
+.screen .info { position: absolute; left: var(--pad); top: 50%; transform: translateY(-50%); width: min(560px, calc(100% - 2 * var(--pad))); max-height: 100%; overflow: auto; display: grid; gap: 1.2rem; padding: 1rem 0; scrollbar-width: none; }
+.screen .info h2 { font-size: clamp(2.6rem, 6.4vw, 6.6rem); }
+.screen .stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+.screen .stats div { display: grid; gap: .2rem; }
+.screen .stats strong { font-family: var(--display); font-stretch: 68%; font-weight: 500; font-size: clamp(2.6rem, 5vw, 4.6rem); line-height: .85; }
+.screen .stats span { color: var(--dim); }
+.screen p.lede { font-family: var(--serif); font-style: italic; font-size: clamp(1.2rem, 1.8vw, 1.7rem); line-height: 1.15; }
+.screen ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.screen li { padding: .8rem 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 2.2rem 1fr; gap: .3rem .6rem; }
+.screen li b { grid-column: 2; font-stretch: 75%; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.screen li span { grid-column: 2; color: var(--dim); font-size: .92rem; line-height: 1.45; }
+.screen li i { grid-row: 1; font-style: normal; color: var(--accent); font-family: var(--mono); font-size: .68rem; padding-top: .2rem; }
+.screen .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.screen .thumbs button { width: 74px; aspect-ratio: 16 / 10; background-size: cover; background-position: center; opacity: .55; outline: 1px solid transparent; transition: opacity .3s, outline-color .3s; }
+.screen .thumbs button.on, .screen .thumbs button:hover { opacity: 1; outline-color: var(--accent); }
+.screen .foot { display: flex; justify-content: space-between; align-items: center; padding: 0 var(--pad); gap: 1rem; position: absolute; left: 0; right: 0; bottom: 0; height: clamp(36px, 9vh, 90px); z-index: 4; color: var(--dim); }
+.screen .foot button { color: var(--bone); letter-spacing: .18em; }
+.screen .caption { position: absolute; right: var(--pad); bottom: 1.2rem; color: var(--bone); z-index: 2; }
+.screen .note { color: var(--dim); }
+
+/* reel scrubber */
+#reel { padding-top: clamp(100px, 14vh, 160px); padding-bottom: 4rem; }
+.scrub { position: relative; touch-action: pan-y; }
+.monitor { position: relative; aspect-ratio: 2.39 / 1; width: 100%; overflow: hidden; background: #000; border-radius: 3px; box-shadow: 0 40px 120px -40px #000; }
+.monitor img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .18s linear; }
+.monitor img.on { opacity: 1; }
+.monitor .safe { position: absolute; inset: 8% 6%; border: 1px dashed rgba(238, 231, 218, .18); pointer-events: none; }
+.monitor .tc { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; color: var(--bone); text-shadow: 0 1px 8px #000; }
+.monitor .cap { position: absolute; left: 16px; bottom: 14px; color: var(--bone); text-shadow: 0 1px 8px #000; }
+.timeline { position: relative; margin-top: 14px; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3px; height: clamp(44px, 6vw, 70px); }
+.timeline div { background-size: cover; background-position: center; opacity: .4; transition: opacity .2s, transform .3s var(--ease); border-radius: 2px; }
+.timeline div.on { opacity: 1; transform: translateY(-4px); }
+.playhead { position: absolute; top: -10px; bottom: -10px; width: 1px; background: var(--rec); left: var(--ph, 0%); box-shadow: 0 0 12px var(--rec); pointer-events: none; transition: left .08s linear; }
+.playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 5px solid transparent; border-top-color: var(--rec); }
+.scrub-hint { display: flex; justify-content: space-between; color: var(--dim); margin-top: 1.4rem; gap: 1rem; flex-wrap: wrap; }
+
+/* process slates */
+#process { padding-top: clamp(100px, 14vh, 160px); padding-bottom: 4rem; }
+.slates { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(14px, 2vw, 26px); perspective: 1200px; }
+.slate { position: relative; background: #121213; border: 1px solid var(--line); padding: 0 0 1.4rem; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .6s var(--ease), border-color .5s; text-align: left; }
+.slate:hover { border-color: var(--faint); }
+.clap { position: relative; height: 34px; transform-origin: 0 100%; transform: rotate(-16deg); transition: transform .5s cubic-bezier(.6, -0.3, .6, 1.5); background: repeating-linear-gradient(-55deg, #eee7da 0 18px, #121213 18px 36px); }
+.slate:hover .clap, .slate.snap .clap { transform: rotate(0deg); transition: transform .14s cubic-bezier(.9, 0, 1, 1); }
+.clap-base { height: 26px; background: repeating-linear-gradient(55deg, #eee7da 0 18px, #121213 18px 36px); }
+.slate-body { padding: 1.2rem 1.2rem 0; display: grid; gap: .9rem; }
+.slate-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.slate-grid div { padding: .5rem .6rem; border-right: 1px solid var(--line); display: grid; gap: .2rem; }
+.slate-grid div:last-child { border-right: 0; }
+.slate-grid em { font-style: normal; color: var(--dim); font-size: .58rem; }
+.slate-grid b { font-family: var(--display); font-stretch: 70%; font-size: 1.3rem; font-weight: 600; }
+.slate h3 { font-size: clamp(2.2rem, 3.8vw, 3.8rem); }
+.slate p { color: var(--dim); line-height: 1.5; font-size: .95rem; }
+.caps { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: clamp(2rem, 4vw, 3.4rem); }
+.caps span { padding: .55rem .9rem; border: 1px solid var(--line); border-radius: 99px; transition: background .4s, color .4s, border-color .4s; }
+.caps span:hover { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+
+/* events: lens reveal */
+#events { padding-top: clamp(100px, 14vh, 160px); padding-bottom: 4rem; }
+.lens-reveal { position: relative; aspect-ratio: 16 / 8; overflow: hidden; border-radius: 3px; touch-action: pan-y; --x: 60%; --y: 50%; --r: 0px; background: #000; }
+.lens-reveal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lens-reveal .setup { -webkit-mask-image: radial-gradient(circle at var(--x) var(--y), #000 calc(var(--r) * 1.9), transparent calc(var(--r) * 1.9 + 2px)); mask-image: radial-gradient(circle at var(--x) var(--y), #000 calc(var(--r) * 1.9), transparent calc(var(--r) * 1.9 + 2px)); }
+.lens-reveal .live { -webkit-mask-image: radial-gradient(circle at var(--x) var(--y), #000 var(--r), transparent calc(var(--r) + 2px)); mask-image: radial-gradient(circle at var(--x) var(--y), #000 var(--r), transparent calc(var(--r) + 2px)); }
+.lens-reveal .rings { position: absolute; left: var(--x); top: var(--y); width: 0; height: 0; pointer-events: none; }
+.lens-reveal .rings i { position: absolute; border: 1px solid rgba(238, 231, 218, .7); border-radius: 50%; transform: translate(-50%, -50%); }
+.lens-reveal .rings i:nth-child(1) { width: calc(var(--r) * 2); height: calc(var(--r) * 2); }
+.lens-reveal .rings i:nth-child(2) { width: calc(var(--r) * 3.8); height: calc(var(--r) * 3.8); border-style: dashed; opacity: .6; }
+.lens-reveal .readout { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; justify-content: space-between; gap: 1rem; color: var(--bone); text-shadow: 0 1px 8px #000; flex-wrap: wrap; }
+.lens-reveal .readout b { font-family: var(--display); font-stretch: 68%; font-size: clamp(1.6rem, 3vw, 3rem); font-weight: 500; letter-spacing: 0; }
+.lens-reveal .legend { position: absolute; top: 16px; left: 18px; display: flex; gap: 1.2rem; color: var(--bone); text-shadow: 0 1px 8px #000; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--bone); margin-right: .45rem; vertical-align: -1px; }
+.legend i.d { border-style: dashed; }
+.pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: 1px; background: var(--line); }
+.pillar { background: var(--ink); padding: 1.3rem 1.1rem 1.5rem; display: grid; gap: .6rem; align-content: start; transition: background .5s; }
+.pillar:hover { background: #17150f; }
+.pillar b { font-stretch: 70%; font-weight: 650; font-size: clamp(1.4rem, 2vw, 2rem); text-transform: uppercase; }
+.pillar span { color: var(--dim); font-size: .9rem; line-height: 1.45; }
+.pillar i { font-style: normal; color: var(--accent); }
+
+/* about */
+#about { padding-top: clamp(100px, 14vh, 160px); padding-bottom: 4rem; }
+.about { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(16px, 3vw, 40px); align-items: start; }
+.portrait { grid-column: 1 / span 4; position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 3px; }
+.portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); transition: filter 1s var(--ease), transform 1.2s var(--ease); }
+.portrait:hover img { filter: grayscale(0); transform: scale(1.04); }
+.portrait .label { position: absolute; left: 12px; bottom: 10px; }
+.about-text { grid-column: 6 / span 7; display: grid; gap: 2rem; }
+.bio { font-family: var(--serif); font-size: clamp(1.5rem, 2.6vw, 2.6rem); line-height: 1.1; letter-spacing: -.015em; max-width: 26ch; }
+.edu { border-top: 1px solid var(--line); }
+.edu div { display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.edu b { font-stretch: 72%; font-weight: 650; text-transform: uppercase; font-size: clamp(1.1rem, 1.6vw, 1.6rem); line-height: 1; }
+.edu span { color: var(--dim); font-size: .95rem; line-height: 1.4; }
+.tools { position: relative; display: flex; flex-wrap: wrap; gap: .2rem 1.6rem; margin-top: clamp(3rem, 6vw, 5rem); padding: 2rem 0; }
+.tools span { display: inline-block; font-stretch: 68%; font-weight: 650; text-transform: uppercase; font-size: clamp(2rem, 5.4vw, 5.6rem); line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(238, 231, 218, .55); will-change: transform; transition: color .35s, -webkit-text-stroke-color .35s; }
+.tools span.near { color: var(--bone); -webkit-text-stroke-color: transparent; }
+
+/* contact */
+#contact { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 8rem; padding-bottom: 6rem; }
+.spot { position: relative; font-size: clamp(3.4rem, 11vw, 12rem); --x: 50%; --y: 50%; }
+.spot .base { color: rgba(238, 231, 218, .1); }
+.spot .lit { position: absolute; inset: 0; color: var(--bone); pointer-events: none; -webkit-mask-image: radial-gradient(circle at var(--x) var(--y), #000 0, #000 9vw, transparent 22vw); mask-image: radial-gradient(circle at var(--x) var(--y), #000 0, #000 9vw, transparent 22vw); }
+.spot .lit em { font-style: normal; color: var(--accent); }
+.card-contact { display: grid; grid-template-columns: repeat(3, auto) 1fr; gap: 1rem 2.6rem; align-items: end; margin-top: clamp(2.4rem, 5vw, 4rem); padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.field { display: grid; gap: .4rem; }
+.field em { font-style: normal; color: var(--dim); }
+.field button { text-align: left; font-family: var(--mono); font-size: clamp(.85rem, 1.1vw, 1.05rem); letter-spacing: .06em; color: var(--bone); user-select: text; }
+.field button:hover { color: var(--accent); }
+.copied { color: var(--accent); min-height: 1em; }
+.action { justify-self: end; display: inline-flex; align-items: center; gap: 1.4rem; padding: 1.1rem 1.6rem; border: 1px solid var(--faint); border-radius: 99px; font-stretch: 75%; font-weight: 650; font-size: 1.4rem; text-transform: uppercase; letter-spacing: .05em; transform: translate(var(--mx, 0), var(--my, 0)); transition: transform .4s var(--ease), background .4s, color .4s; }
+.action:hover { background: var(--bone); color: var(--ink); }
+footer { position: relative; z-index: 10; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1.4rem var(--pad) 3.6rem; border-top: 1px solid var(--line); color: var(--dim); }
+
+/* ---------- loader ---------- */
+.loader { position: fixed; inset: 0; z-index: 90; background: #050505; display: grid; place-items: center; transition: clip-path 1.1s var(--ease-io) .2s; clip-path: inset(0 0 0 0); }
+.loader.done { clip-path: inset(0 0 100% 0); }
+.loader .count { font-family: var(--display); font-stretch: 68%; font-weight: 500; font-size: clamp(6rem, 22vw, 20rem); line-height: .8; font-variant-numeric: tabular-nums; }
+.loader .cue { position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; color: var(--dim); }
+.loader .ring { position: absolute; width: min(60vw, 520px); aspect-ratio: 1; border: 1px solid var(--faint); border-radius: 50%; }
+.loader .ring::after { content: ""; position: absolute; left: 50%; top: 50%; width: 50%; height: 1px; background: var(--bone); transform-origin: 0 0; animation: sweep 1s linear infinite; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 1.1s var(--ease), transform 1.1s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .nav { display: none; }
+  .hero-under { grid-template-columns: 1fr; }
+  .roles, .tagline, .hint { grid-column: 1 / -1; justify-self: start; text-align: left; }
+  .cards { grid-template-columns: 1fr; }
+  .card, .card:nth-child(n) { grid-column: 1 / -1; aspect-ratio: 4 / 3.4; }
+  .slates { grid-template-columns: 1fr 1fr; }
+  .pillars { grid-template-columns: 1fr 1fr; }
+  .lens-reveal { aspect-ratio: 4 / 3.6; }
+  .about { grid-template-columns: 1fr; }
+  .portrait, .about-text { grid-column: 1 / -1; }
+  .portrait { width: 72%; }
+  .card-contact { grid-template-columns: 1fr; }
+  .action { justify-self: start; }
+  .hud-bottom .lens span:nth-child(n+3) { display: none; }
+  .screen .veil { background: linear-gradient(0deg, rgba(5,5,6,.95) 0%, rgba(5,5,6,.75) 55%, rgba(5,5,6,.2) 100%); }
+  .screen .info { top: auto; bottom: 0; transform: none; max-height: 72%; }
+}
+@media (max-width: 560px) {
+  .slates, .pillars { grid-template-columns: 1fr; }
+  .edu div { grid-template-columns: 1fr; gap: .3rem; }
+  .hud-top-right { display: none; }
+  .hero-name { font-size: clamp(3.2rem, 16vw, 6rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="ring"></div>
+  <div class="count" id="count">3</div>
+  <div class="cue label">Rolling — speed — mark it</div>
+</div>
+
+<header class="topbar">
+  <a class="brand" href="#hero">SATYAM<small>Film producer</small></a>
+  <nav class="nav" aria-label="Sections">
+    <a href="#work">Work</a><a href="#reel">Reel</a><a href="#process">Process</a><a href="#events">Events</a><a href="#about">About</a><a href="#contact">Contact</a>
+  </nav>
+  <span class="rec label"><i></i>REC <span id="tc">00:00:00:00</span></span>
+</header>
+
+<div class="hud" aria-hidden="true">
+  <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+  <div class="hud-top-right">
+    <span>Take <b id="take">01</b></span>
+    <span class="flash-tag" id="flash">Action</span>
+  </div>
+  <div class="hud-bottom">
+    <span class="lens"><span><b id="mm">35</b>mm</span><span>T<b id="tstop">2.8</b></span><span>ISO <b>800</b></span><span><b>180</b>°</span><span>5600K</span></span>
+    <span class="scene-tag">SC <b id="sc">01</b> — <span id="scname">Opening</span></span>
+  </div>
+</div>
+
+<div class="vf" id="vf" aria-hidden="true">
+  <div class="box"><span></span><span></span><span></span><span></span></div>
+  <div class="dot"></div>
+  <div class="focus" id="focus">∞</div>
+  <div class="txt" id="vftxt"></div>
+</div>
+
+<main>
+  <!-- 01 HERO -->
+  <section id="hero" data-scene="01" data-name="Opening">
+    <h1 class="hero-name" id="name" aria-label="Satyam Bhardwaj">
+      <span class="row">SATYAM</span><span class="row">BHARDWAJ</span>
+    </h1>
+    <div class="hero-under">
+      <div class="roles"><span>Film Producer</span><span>Entertainment Operations</span></div>
+      <p class="tagline serif">Stories are built long before the camera rolls.</p>
+      <p class="hint label">Move the cursor — <b>he's framing you.</b><br>Click to call action.</p>
+    </div>
+    <div class="proof label">
+      <div><strong>07</strong><span>Locations<em>Aster</em></span></div>
+      <div><strong>04</strong><span>Shoot days<em>Aster</em></span></div>
+      <div><strong>04</strong><span>Constructed sets<em>House of Purple</em></span></div>
+      <div><strong>01</strong><span>Controlled fire sequence<em>House of Purple</em></span></div>
+    </div>
+  </section>
+
+  <!-- 02 WORK -->
+  <section id="work" data-scene="02" data-name="Selected work">
+    <div class="scene-head">
+      <div>
+        <div class="slug label">Scene 02</div>
+        <h2 class="scene-title display reveal">Selected<br>Work</h2>
+      </div>
+      <p class="scene-note serif reveal">Tilt a frame with your cursor. Click to enter the screening room.</p>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- 03 REEL -->
+  <section id="reel" data-scene="03" data-name="Reel">
+    <div class="scene-head">
+      <div>
+        <div class="slug label">Scene 03</div>
+        <h2 class="scene-title display reveal">Scrub<br>the reel</h2>
+      </div>
+      <p class="scene-note serif reveal">Your cursor is the playhead. Slide across the frame to cut through the footage.</p>
+    </div>
+    <div class="scrub" id="scrub" data-cursor="Scrub">
+      <div class="monitor" id="monitor">
+        <div class="safe"></div>
+        <div class="tc label"><span id="reelName">Aster</span><span id="reelTc">01:00:00:00</span></div>
+        <div class="cap label" id="reelCap"></div>
+      </div>
+      <div class="timeline" id="timeline"><div class="playhead" id="playhead"></div></div>
+    </div>
+    <div class="scrub-hint label"><span>← earlier</span><span id="frameNo">Frame 01 / 16</span><span>later →</span></div>
+  </section>
+
+  <!-- 04 PROCESS -->
+  <section id="process" data-scene="04" data-name="From script to screen">
+    <div class="scene-head">
+      <div>
+        <div class="slug label">Scene 04</div>
+        <h2 class="scene-title display reveal">From script<br>to screen</h2>
+      </div>
+      <p class="scene-note serif reveal">Six stages, six slates. Hover to mark each one.</p>
+    </div>
+    <div class="slates" id="slates"></div>
+    <div class="caps label" id="caps"></div>
+  </section>
+
+  <!-- 05 EVENTS -->
+  <section id="events" data-scene="05" data-name="Live execution">
+    <div class="scene-head">
+      <div>
+        <div class="slug label">Scene 05</div>
+        <h2 class="scene-title display reveal">Live<br>execution</h2>
+      </div>
+      <p class="scene-note serif reveal">Point the lens at the empty hall. The outer ring shows setup, the centre shows showtime. Click to go live.</p>
+    </div>
+    <div class="lens-reveal" id="lensReveal" data-cursor="Reveal">
+      <img src="assets/events/venue-empty.jpg" alt="An empty hall in daylight">
+      <img class="setup" src="assets/events/venue-setup.jpg" alt="The same hall during setup">
+      <img class="live" src="assets/events/venue-live.jpg" alt="The same hall during the live event">
+      <div class="rings"><i></i><i></i></div>
+      <div class="legend label"><span><i></i>Live event</span><span><i class="d"></i>Setup</span><span>Outside: empty venue</span></div>
+      <div class="readout label"><b id="clock">T – 48:00</b><span id="stageName">Empty venue</span></div>
+    </div>
+    <div class="pillars" id="pillars"></div>
+  </section>
+
+  <!-- 06 ABOUT -->
+  <section id="about" data-scene="06" data-name="About">
+    <div class="scene-head">
+      <div>
+        <div class="slug label">Scene 06</div>
+        <h2 class="scene-title display reveal">Satyam<br>Bhardwaj</h2>
+      </div>
+    </div>
+    <div class="about">
+      <div class="portrait reveal"><img src="assets/site/portrait.jpg" alt="Placeholder portrait of a producer overlooking a lit set"><span class="label">Portrait · placeholder</span></div>
+      <div class="about-text">
+        <p class="bio reveal">Film producer with a background in filmmaking, production coordination and live event operations, currently pursuing global finance studies with international academic exposure.</p>
+        <div class="edu label reveal">
+          <div><b>SP Jain School of Global Management</b><span>Master of Global Business — Global Finance</span><span>Current</span></div>
+          <div><b>Whistling Woods International</b><span>MA Filmmaking — Producing</span><span>CGPA 8.5</span></div>
+          <div><b>Amity University Kolkata</b><span>BA Journalism &amp; Mass Communication</span><span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tools" id="tools" aria-label="Toolkit">
+      <span>Movie Magic</span><span>Scheduling</span><span>Budgeting</span><span>Excel</span><span>Production</span><span>Event Operations</span><span>Project Management</span>
+    </div>
+  </section>
+
+  <!-- 07 CONTACT -->
+  <section id="contact" data-scene="07" data-name="That's a wrap">
+    <div class="slug label">Scene 07 — That's a wrap</div>
+    <h2 class="spot display" id="spot">
+      <span class="base">Let's make<br>something<br>worth watching.</span>
+      <span class="lit" aria-hidden="true">Let's make<br>something<br><em>worth watching.</em></span>
+    </h2>
+    <div class="card-contact label">
+      <div class="field"><em>Phone</em><button data-copy="+91 9102458875">+91 9102458875</button></div>
+      <div class="field"><em>Email</em><button data-copy="mrbhardwaj2207@gmail.com">MRBHARDWAJ2207@GMAIL.COM</button></div>
+      <div class="field"><em>Based</em><span>India / Singapore</span></div>
+      <a class="action" id="action" href="mailto:mrbhardwaj2207@gmail.com" data-cursor="Contact">Contact <span aria-hidden="true">→</span></a>
+      <span class="copied" id="copied" aria-live="polite"></span>
+    </div>
+  </section>
+</main>
+
+<footer class="label">
+  <span>© 2026 Satyam Bhardwaj</span>
+  <span>Director's cut — portfolio prototype · placeholder imagery</span>
+  <a href="#hero">Back to top ↑</a>
+</footer>
+
+<div class="screen" id="screen" role="dialog" aria-modal="true" aria-labelledby="scrTitle">
+  <div class="bar"></div>
+  <div class="view" id="scrView">
+    <div class="plate" id="scrPlate"></div>
+    <div class="veil"></div>
+    <div class="info">
+      <span class="label" id="scrMeta"></span>
+      <h2 class="display" id="scrTitle"></h2>
+      <div class="stats" id="scrStats"></div>
+      <p class="lede" id="scrLede"></p>
+      <ol id="scrList"></ol>
+      <div class="thumbs" id="scrThumbs"></div>
+      <span class="label note" id="scrNote"></span>
+    </div>
+    <span class="caption label" id="scrCap"></span>
+  </div>
+  <div class="bar"></div>
+  <div class="foot label">
+    <button id="scrPrev">← Prev</button>
+    <span>Esc to leave the screening room</span>
+    <span><button id="scrNext">Next →</button>&nbsp;&nbsp;&nbsp;<button id="scrClose">Close ✕</button></span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script>
+/* =====================================================================
+   CONTENT — edit here. Images live in ./assets/<project>/.
+   Chapter text is sample copy for the prototype.
+   ===================================================================== */
+const A = "assets/";
+const PROJECTS = [
+  { id: "aster", n: "01", title: "Aster", role: "Producer", scale: "7 Locations / 4 Days", accent: "#ffb05c",
+    cover: "aster/cover.jpg", stats: [["07", "Locations"], ["04", "Days"]],
+    lede: "Production coordination across a compressed four-day shoot spanning seven locations.",
+    list: [["Production", "Approved script to locked shooting plan."], ["Location logistics", "Seven locations sequenced around access, power and light."], ["Scheduling", "Stripboards, day-out-of-days and call sheets."], ["Cast & crew", "Call times, transport and turnarounds."], ["On-ground execution", "Real-time decisions that keep the day moving."]],
+    frames: ["aster/cover.jpg", "aster/location-01.jpg", "aster/location-02.jpg", "aster/scheduling.jpg", "aster/crew.jpg", "aster/bts-01.jpg", "aster/execution.jpg"],
+    note: "Festival selections — to be announced." },
+  { id: "purple", n: "02", title: "Death at the House of Purple", role: "Production", scale: "4 Sets / Controlled Fire Sequence", accent: "#b394ff",
+    cover: "purple/cover.jpg", stats: [["04", "Constructed sets"], ["01", "Controlled fire sequence"]],
+    lede: "Four sets built from the ground up, and a fire sequence that looks dangerous on screen while staying controlled on the floor.",
+    list: [["Planning", "Floor plans and the fire sequence broken down shot by shot."], ["Set construction", "Four sets built and dressed to schedule."], ["Safety", "SFX team, safety officer, rehearsals and standby suppression."], ["Execution", "Controlled takes with clear exclusion zones."]],
+    frames: ["purple/cover.jpg", "purple/planning.jpg", "purple/construction.jpg", "purple/safety.jpg", "purple/execution.jpg", "purple/set-01.jpg", "purple/set-04.jpg"],
+    note: "Festival selections — to be announced." },
+  { id: "rana", n: "03", title: "Rana", role: "Film Production", scale: "Film production", accent: "#e8a75a",
+    cover: "rana/cover.jpg", stats: [],
+    lede: "Case study in progress — production details, stills and credits coming soon.",
+    list: [], frames: ["rana/cover.jpg", "rana/still-01.jpg", "rana/still-02.jpg", "rana/still-03.jpg", "rana/still-04.jpg"], note: "" },
+  { id: "gluttony", n: "04", title: "Gluttony", role: "Film Production", scale: "Film production", accent: "#ff6a55",
+    cover: "gluttony/cover.jpg", stats: [],
+    lede: "Case study in progress — production details, stills and credits coming soon.",
+    list: [], frames: ["gluttony/cover.jpg", "gluttony/still-01.jpg", "gluttony/still-02.jpg", "gluttony/still-03.jpg", "gluttony/still-04.jpg"], note: "" },
+];
+const REEL = [
+  ["aster/frame-01.jpg", "Aster"], ["aster/frame-02.jpg", "Aster"], ["aster/frame-03.jpg", "Aster"], ["aster/frame-04.jpg", "Aster"],
+  ["aster/frame-05.jpg", "Aster"], ["aster/frame-06.jpg", "Aster"], ["aster/frame-07.jpg", "Aster"], ["aster/frame-08.jpg", "Aster"],
+  ["purple/cover.jpg", "House of Purple"], ["purple/fire-01.jpg", "House of Purple"], ["purple/set-02.jpg", "House of Purple"],
+  ["rana/cover.jpg", "Rana"], ["rana/still-01.jpg", "Rana"], ["gluttony/cover.jpg", "Gluttony"], ["gluttony/still-01.jpg", "Gluttony"], ["events/cover.jpg", "Live events"],
+];
+const STAGES = [
+  ["Develop", "Script, scope and intent — what it will really take to make."], ["Plan", "Budgets, locations, departments and risk in one plan."],
+  ["Schedule", "Stripboards, DOODs and call sheets that respect daylight and people."], ["Coordinate", "Cast, crew, vendors and permissions moving as one unit."],
+  ["Execute", "On the ground, solving in real time without losing the day."], ["Deliver", "Picture lock and a film ready for its audience."],
+];
+const CAPS = ["Film production", "Production coordination", "Location logistics", "Scheduling", "Vendor coordination", "Event operations", "Stakeholder management", "On-ground execution"];
+const PILLARS = [["Clients", "A client's vision turned into a run-of-show."], ["Vendors", "Décor, AV and catering briefed and held to plan."], ["Timelines", "Load-in to load-out, built backwards from the moment."], ["Logistics", "Transport, power and access solved before guests arrive."], ["Live delivery", "Cues, people and problems handled quietly."]];
+
+/* ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+const pointer = { x: innerWidth * .62, y: innerHeight * .45, nx: .24, ny: .1, moved: 0 };
+let lookOverride = null;
+
+/* ---------- loader ---------- */
+(function loader() {
+  const c = $("#count");
+  let n = 3;
+  const tick = () => {
+    n--;
+    if (n > 0) { c.textContent = n; setTimeout(tick, 420); }
+    else { $("#loader").classList.add("done"); document.body.classList.add("ready"); }
+  };
+  setTimeout(tick, reduce ? 10 : 420);
+})();
+
+/* ---------- timecode ---------- */
+(function tc() {
+  const el = $("#tc"); const t0 = performance.now(); let last = -1;
+  const p = (v) => String(v).padStart(2, "0");
+  (function loop(now) {
+    const f = Math.floor((now - t0) / 1000 * 24);
+    if (f !== last) { last = f; const s = Math.floor(f / 24); el.textContent = `${p(Math.floor(s / 3600))}:${p(Math.floor(s / 60) % 60)}:${p(s % 60)}:${p(f % 24)}`; }
+    requestAnimationFrame(loop);
+  })(t0);
+})();
+
+/* ---------- pointer + viewfinder cursor ---------- */
+const vf = $("#vf"), vfTxt = $("#vftxt"), focusEl = $("#focus");
+if (fine) document.documentElement.classList.add("has-vf");
+let vx = pointer.x, vy = pointer.y;
+addEventListener("pointermove", (e) => {
+  pointer.x = e.clientX; pointer.y = e.clientY;
+  pointer.nx = (e.clientX / innerWidth) * 2 - 1; pointer.ny = -(e.clientY / innerHeight) * 2 + 1;
+  pointer.moved = performance.now();
+}, { passive: true });
+document.addEventListener("pointerover", (e) => {
+  const t = e.target.closest("[data-cursor], a, button, .card, .slate");
+  if (!t) { vf.style.setProperty("--w", "46px"); vf.style.setProperty("--h", "32px"); vfTxt.textContent = ""; return; }
+  const big = t.matches(".card, [data-cursor]");
+  vf.style.setProperty("--w", big ? "120px" : "62px");
+  vf.style.setProperty("--h", big ? "80px" : "40px");
+  vfTxt.textContent = t.dataset.cursor || (t.classList.contains("card") ? "Screen it" : t.classList.contains("slate") ? "Mark it" : "");
+});
+(function vfLoop() {
+  vx += (pointer.x - vx) * .25; vy += (pointer.y - vy) * .25;
+  vf.style.transform = `translate(${vx}px, ${vy}px)`;
+  requestAnimationFrame(vfLoop);
+})();
+
+/* ---------- hero name: letters swell near the cursor ---------- */
+(function nameMorph() {
+  const rows = $$("#name .row");
+  rows.forEach((r) => { r.innerHTML = [...r.textContent].map((c) => `<span class="ch">${c}</span>`).join(""); });
+  const chars = $$("#name .ch");
+  if (reduce) return;
+  let raf = 0;
+  const upd = () => {
+    raf = 0;
+    for (const ch of chars) {
+      const b = ch.getBoundingClientRect();
+      const d = Math.hypot(pointer.x - (b.left + b.width / 2), pointer.y - (b.top + b.height / 2));
+      const k = Math.max(0, 1 - d / 380);
+      ch.style.setProperty("--wd", (68 + k * 57).toFixed(1));
+      ch.style.setProperty("--wg", (620 - k * 420).toFixed(0));
+      ch.classList.toggle("hot", k > .72);
+    }
+  };
+  addEventListener("pointermove", () => { if (!raf) raf = requestAnimationFrame(upd); }, { passive: true });
+})();
+
+/* ---------- cards + screening room ---------- */
+const cards = $("#cards");
+PROJECTS.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "card"; b.dataset.i = i; b.dataset.look = "";
+  b.setAttribute("aria-label", `${p.title} — ${p.role}. Open screening room`);
+  b.innerHTML = `<div class="img" style="background-image:url(${A + p.cover})"></div><div class="shade"></div><div class="glare"></div>
+    <span class="num label"><b>${p.n}</b>${p.role}</span><span class="open label">Screen it →</span>
+    <div class="meta"><h3 class="display">${p.title}</h3><div class="scale label"><span>${p.scale}</span><span>Case study</span></div></div>`;
+  cards.appendChild(b);
+});
+function tilt(el, strength = 9) {
+  el.addEventListener("pointermove", (e) => {
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    el.style.setProperty("--ry", `${(x - .5) * strength}deg`);
+    el.style.setProperty("--rx", `${(.5 - y) * strength}deg`);
+    el.style.setProperty("--gx", `${x * 100}%`); el.style.setProperty("--gy", `${y * 100}%`);
+    el.style.setProperty("--px", `${(.5 - x) * 22}px`); el.style.setProperty("--py", `${(.5 - y) * 22}px`);
+  });
+  el.addEventListener("pointerenter", () => { el.classList.add("live"); lookOverride = el; });
+  el.addEventListener("pointerleave", () => {
+    el.classList.remove("live"); if (lookOverride === el) lookOverride = null;
+    ["--rx", "--ry", "--px", "--py"].forEach((k) => el.style.setProperty(k, k.includes("p") ? "0px" : "0deg"));
+  });
+}
+$$(".card").forEach((c) => {
+  tilt(c, 10);
+  c.addEventListener("pointerenter", () => setAccent(PROJECTS[c.dataset.i].accent));
+  c.addEventListener("pointerleave", () => setAccent("#ffb05c"));
+  c.addEventListener("click", () => openScreen(+c.dataset.i));
+});
+
+const scr = $("#screen"); let cur = 0, frame = 0, lastFocus = null;
+function openScreen(i) {
+  cur = (i + PROJECTS.length) % PROJECTS.length; frame = 0;
+  const p = PROJECTS[cur];
+  setAccent(p.accent);
+  $("#scrMeta").textContent = `${p.n} / 0${PROJECTS.length} — ${p.role}`;
+  $("#scrTitle").textContent = p.title;
+  $("#scrStats").innerHTML = p.stats.map(([v, l]) => `<div><strong>${v}</strong><span class="label">${l}</span></div>`).join("");
+  $("#scrLede").textContent = p.lede;
+  $("#scrList").innerHTML = p.list.map(([t, d], k) => `<li><i>${String(k + 1).padStart(2, "0")}</i><b>${t}</b><span>${d}</span></li>`).join("");
+  $("#scrList").hidden = !p.list.length;
+  $("#scrThumbs").innerHTML = p.frames.map((f, k) => `<button style="background-image:url(${A + f})" aria-label="Show frame ${k + 1}" class="${k ? "" : "on"}" data-k="${k}"></button>`).join("");
+  $$("#scrThumbs button").forEach((t) => t.addEventListener("pointerenter", () => showFrame(+t.dataset.k)));
+  $$("#scrThumbs button").forEach((t) => t.addEventListener("click", () => showFrame(+t.dataset.k)));
+  $("#scrNote").textContent = p.note;
+  showFrame(0);
+  if (!scr.classList.contains("on")) { lastFocus = document.activeElement; scr.classList.add("on"); document.body.style.overflow = "hidden"; }
+  $("#scrClose").focus({ preventScroll: true });
+}
+function showFrame(k) {
+  frame = k; const p = PROJECTS[cur];
+  const plate = $("#scrPlate");
+  plate.style.backgroundImage = `url(${A + p.frames[k]})`;
+  plate.classList.remove("swap"); void plate.offsetWidth; plate.classList.add("swap");
+  $$("#scrThumbs button").forEach((t, j) => t.classList.toggle("on", j === k));
+  $("#scrCap").textContent = `Frame ${String(k + 1).padStart(2, "0")} / ${String(p.frames.length).padStart(2, "0")}`;
+}
+function closeScreen() { scr.classList.remove("on"); document.body.style.overflow = ""; setAccent("#ffb05c"); lastFocus && lastFocus.focus({ preventScroll: true }); }
+$("#scrClose").addEventListener("click", closeScreen);
+$("#scrNext").addEventListener("click", () => openScreen(cur + 1));
+$("#scrPrev").addEventListener("click", () => openScreen(cur - 1));
+addEventListener("keydown", (e) => {
+  if (!scr.classList.contains("on")) return;
+  if (e.key === "Escape") closeScreen();
+  if (e.key === "ArrowRight") showFrame((frame + 1) % PROJECTS[cur].frames.length);
+  if (e.key === "ArrowLeft") showFrame((frame - 1 + PROJECTS[cur].frames.length) % PROJECTS[cur].frames.length);
+});
+$("#scrView").addEventListener("pointermove", (e) => {   // cursor is the camera operator
+  const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+  const plate = $("#scrPlate");
+  plate.style.setProperty("--sx", `${-x * 6}%`); plate.style.setProperty("--sy", `${-y * 6}%`);
+  plate.style.setProperty("--sz", (1.08 + Math.abs(x) * .06).toFixed(3));
+});
+
+/* ---------- reel scrubber ---------- */
+(function reel() {
+  const mon = $("#monitor"), tl = $("#timeline"), ph = $("#playhead");
+  tl.style.setProperty("--n", REEL.length);
+  REEL.forEach(([src], i) => {
+    const img = new Image(); img.src = A + src; img.alt = `Reel frame ${i + 1}`; img.loading = "lazy"; img.decoding = "async";
+    if (!i) img.className = "on"; mon.insertBefore(img, mon.firstChild.nextSibling);
+    const th = document.createElement("div"); th.style.backgroundImage = `url(${A + src})`; if (!i) th.className = "on"; tl.appendChild(th);
+  });
+  const imgs = $$("img", mon), ths = $$("div:not(.playhead)", tl);
+  imgs.reverse();
+  let idx = 0, auto = true;
+  const p = (v) => String(v).padStart(2, "0");
+  function go(i, frac) {
+    i = Math.max(0, Math.min(REEL.length - 1, i));
+    ph.style.setProperty("--ph", `${(frac ?? (i + .5) / REEL.length) * 100}%`);
+    if (i === idx) return;
+    imgs[idx].classList.remove("on"); ths[idx].classList.remove("on");
+    idx = i; imgs[i].classList.add("on"); ths[i].classList.add("on");
+    $("#reelName").textContent = REEL[i][1];
+    $("#frameNo").textContent = `Frame ${p(i + 1)} / ${REEL.length}`;
+    $("#reelCap").textContent = imgs[i].alt;
+    const secs = i * 7 + 3; $("#reelTc").textContent = `01:${p(Math.floor(secs / 60))}:${p(secs % 60)}:${p((i * 11) % 24)}`;
+  }
+  const scrub = $("#scrub");
+  const move = (e) => { auto = false; const r = scrub.getBoundingClientRect(); const f = Math.max(0, Math.min(.999, (e.clientX - r.left) / r.width)); go(Math.floor(f * REEL.length), f); };
+  scrub.addEventListener("pointermove", move);
+  scrub.addEventListener("pointerdown", move);
+  scrub.addEventListener("pointerleave", () => { auto = true; });
+  setInterval(() => { if (auto && !reduce) go((idx + 1) % REEL.length); }, 1300);
+  go(0);
+})();
+
+/* ---------- process slates ---------- */
+(function slates() {
+  const wrap = $("#slates");
+  STAGES.forEach(([t, d], i) => {
+    const s = document.createElement("article");
+    s.className = "slate reveal"; s.tabIndex = 0;
+    s.innerHTML = `<div class="clap"></div><div class="clap-base"></div><div class="slate-body">
+      <div class="slate-grid label"><div><em>Scene</em><b>0${i + 1}</b></div><div><em>Roll</em><b>A${i + 1}</b></div><div><em>Take</em><b>01</b></div></div>
+      <h3 class="display">${t}</h3><p>${d}</p></div>`;
+    wrap.appendChild(s);
+    tilt(s, 8);
+    s.addEventListener("pointerenter", () => { const tk = $(".slate-grid div:last-child b", s); tk.textContent = String(+tk.textContent + 1).padStart(2, "0"); });
+  });
+  $("#caps").innerHTML = CAPS.map((c) => `<span>${c}</span>`).join("");
+})();
+
+/* ---------- events: lens reveal ---------- */
+(function lens() {
+  const el = $("#lensReveal"); let r = 0, target = 0, full = false, inside = false;
+  const R = () => Math.max(90, Math.min(200, el.clientWidth * .13));
+  el.addEventListener("pointermove", (e) => {
+    const b = el.getBoundingClientRect();
+    el.style.setProperty("--x", `${e.clientX - b.left}px`); el.style.setProperty("--y", `${e.clientY - b.top}px`);
+    inside = true; if (!full) target = R();
+  });
+  el.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") { inside = true; target = R(); } });
+  el.addEventListener("pointerleave", () => { inside = false; if (!full) target = 0; });
+  el.addEventListener("click", () => { full = !full; target = full ? Math.hypot(el.clientWidth, el.clientHeight) : (inside ? R() : 0); });
+  const clock = $("#clock"), name = $("#stageName");
+  (function loop() {
+    r += (target - r) * .12;
+    el.style.setProperty("--r", `${r.toFixed(1)}px`);
+    const k = Math.min(1, r / R());
+    if (full && r > R() * 2) { clock.textContent = "T 00:00"; name.textContent = "Showtime — live event"; }
+    else if (k > .6) { clock.textContent = "T – 12:00"; name.textContent = "Setup ring · live centre"; }
+    else { clock.textContent = "T – 48:00"; name.textContent = "Empty venue"; }
+    requestAnimationFrame(loop);
+  })();
+  $("#pillars").innerHTML = PILLARS.map(([t, d], i) => `<div class="pillar"><i class="label">0${i + 1}</i><b>${t}</b><span>${d}</span></div>`).join("");
+})();
+
+/* ---------- toolkit: words step out of the cursor's way ---------- */
+(function tools() {
+  const words = $$("#tools span"); if (reduce) return;
+  const state = words.map(() => ({ x: 0, y: 0 }));
+  (function loop() {
+    words.forEach((w, i) => {
+      const b = w.getBoundingClientRect();
+      const cx = b.left + b.width / 2 - state[i].x, cy = b.top + b.height / 2 - state[i].y;
+      const dx = cx - pointer.x, dy = cy - pointer.y, d = Math.hypot(dx, dy) || 1;
+      const k = Math.max(0, 1 - d / 220);
+      const tx = (dx / d) * k * 46, ty = (dy / d) * k * 30;
+      state[i].x += (tx - state[i].x) * .12; state[i].y += (ty - state[i].y) * .12;
+      w.style.transform = `translate(${state[i].x.toFixed(1)}px, ${state[i].y.toFixed(1)}px)`;
+      w.classList.toggle("near", k > .25);
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ---------- contact: spotlight + magnetic button + copy ---------- */
+(function contact() {
+  const spot = $("#spot");
+  spot.addEventListener("pointermove", (e) => { const b = spot.getBoundingClientRect(); spot.style.setProperty("--x", `${e.clientX - b.left}px`); spot.style.setProperty("--y", `${e.clientY - b.top}px`); });
+  const act = $("#action");
+  act.addEventListener("pointermove", (e) => { const b = act.getBoundingClientRect(); act.style.setProperty("--mx", `${(e.clientX - b.left - b.width / 2) * .3}px`); act.style.setProperty("--my", `${(e.clientY - b.top - b.height / 2) * .4}px`); });
+  act.addEventListener("pointerleave", () => { act.style.setProperty("--mx", "0px"); act.style.setProperty("--my", "0px"); });
+  $$("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+    const v = b.dataset.copy; const out = $("#copied");
+    try { await navigator.clipboard.writeText(v); out.textContent = `Copied ${v}`; }
+    catch { const r = document.createRange(); r.selectNodeContents(b); const s = getSelection(); s.removeAllRanges(); s.addRange(r); out.textContent = "Selected — press Ctrl/Cmd+C to copy"; }
+  }));
+})();
+
+/* ---------- scenes: reveal + HUD + nav ---------- */
+let scene = "01";
+(function scenes() {
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in"); }), { threshold: .15 });
+  $$(".reveal").forEach((el) => io.observe(el));
+  const sio = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    scene = e.target.dataset.scene;
+    $("#sc").textContent = scene; $("#scname").textContent = e.target.dataset.name;
+    $$(".nav a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === `#${e.target.id}`));
+  }), { rootMargin: "-45% 0px -45% 0px" });
+  $$("main section").forEach((s) => sio.observe(s));
+})();
+
+/* =====================================================================
+   THE STAGE — a stylised filmmaker built from primitives, lit like a set.
+   He frames whatever you point at: the cursor, or the card you hover.
+   ===================================================================== */
+function setAccent(hex) {
+  document.documentElement.style.setProperty("--accent", hex);
+  if (window.__stage) window.__stage.setAccent(hex);
+}
+(function stage() {
+  if (!window.THREE) return;
+  const canvas = $("#stage");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+  const scene3 = new THREE.Scene();
+  scene3.fog = new THREE.FogExp2(0x0a0908, .06);
+  const camera = new THREE.PerspectiveCamera(32, 1, .1, 80);
+  camera.position.set(0, 1.35, 8.2);
+
+  const M = (c, r = .7, m = 0, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, ...extra });
+  const mat = {
+    skin: M(0x9c6646, .55), hair: M(0x15100d, .85), beard: M(0x251912, .95), jacket: M(0x6b6248, .85), tee: M(0x121214, .9),
+    pants: M(0x2f3747, .85), shoe: M(0x0d0d0e, .5), cap: M(0x7a3326, .75), white: M(0xf4efe6, .3), pupil: M(0x0b0705, .2),
+    rig: M(0x1a1b1e, .38, .55), rig2: M(0x2b2d31, .45, .5), glass: M(0x0d1620, .05, .9, { emissive: 0x0a1a28, emissiveIntensity: .6 }),
+    frame: M(0x1c1c1c, .3, .6), red: M(0xff3b2a, .4, 0, { emissive: 0xff2010, emissiveIntensity: 2 }), screen: M(0x101418, .2, 0, { emissive: 0x6fb6ff, emissiveIntensity: 1.4 }),
+  };
+  const mesh = (g, m, p = [0, 0, 0], parent) => { const o = new THREE.Mesh(g, m); o.position.set(...p); o.castShadow = true; o.receiveShadow = true; (parent || avatar).add(o); return o; };
+
+  // world + avatar root
+  const world = new THREE.Group(); scene3.add(world);
+  const avatar = new THREE.Group(); world.add(avatar);
+
+  // floor disk with soft falloff
+  const fl = document.createElement("canvas"); fl.width = fl.height = 256;
+  const fg = fl.getContext("2d"); const grd = fg.createRadialGradient(128, 128, 0, 128, 128, 128);
+  grd.addColorStop(0, "rgba(60,48,36,1)"); grd.addColorStop(.6, "rgba(22,18,15,.8)"); grd.addColorStop(1, "rgba(10,9,8,0)");
+  fg.fillStyle = grd; fg.fillRect(0, 0, 256, 256);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(3.6, 64), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(fl), transparent: true, roughness: .9 }));
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; world.add(floor);
+  // gaffer-tape marks on the floor
+  const tape = new THREE.MeshBasicMaterial({ color: 0xffb05c, transparent: true, opacity: .7 });
+  [[-.45, .55, .5], [.45, .55, -.5]].forEach(([x, z, r]) => { const t = new THREE.Mesh(new THREE.PlaneGeometry(.34, .05), tape); t.rotation.set(-Math.PI / 2, 0, r); t.position.set(x, .003, z); world.add(t); const t2 = t.clone(); t2.rotation.z = r + Math.PI / 2; world.add(t2); });
+
+  // ---- body ----
+  const legL = mesh(new THREE.CapsuleGeometry(.13, .62, 6, 12), mat.pants, [-.16, .46, 0]);
+  const legR = mesh(new THREE.CapsuleGeometry(.13, .62, 6, 12), mat.pants, [.16, .46, 0]);
+  mesh(new THREE.BoxGeometry(.2, .1, .36), mat.shoe, [-.16, .05, .06]); mesh(new THREE.BoxGeometry(.2, .1, .36), mat.shoe, [.16, .05, .06]);
+  const torso = new THREE.Group(); torso.position.set(0, .95, 0); avatar.add(torso);
+  const jacket = mesh(new THREE.CapsuleGeometry(.36, .5, 8, 20), mat.jacket, [0, .25, 0], torso); jacket.scale.set(1.05, 1, .74);
+  const tee = mesh(new THREE.CylinderGeometry(.19, .23, .55, 20, 1, true), mat.tee, [0, .32, .13], torso); tee.scale.set(1, 1, .5);
+  mesh(new THREE.CylinderGeometry(.11, .13, .2, 16), mat.skin, [0, .68, 0], torso);
+  // headphones around the neck
+  const hp = mesh(new THREE.TorusGeometry(.17, .03, 10, 28), mat.rig, [0, .62, .02], torso); hp.rotation.x = Math.PI / 2 - .25;
+  mesh(new THREE.CylinderGeometry(.075, .075, .05, 18), mat.rig2, [-.18, .58, .07], torso).rotation.z = Math.PI / 2;
+  mesh(new THREE.CylinderGeometry(.075, .075, .05, 18), mat.rig2, [.18, .58, .07], torso).rotation.z = Math.PI / 2;
+
+  // ---- head ----
+  const neckPivot = new THREE.Group(); neckPivot.position.set(0, .78, 0); torso.add(neckPivot);
+  const head = new THREE.Group(); head.position.set(0, .26, 0); neckPivot.add(head);
+  const skull = mesh(new THREE.SphereGeometry(.26, 32, 24), mat.skin, [0, 0, 0], head); skull.scale.set(.92, 1.08, .96);
+  const beard = mesh(new THREE.SphereGeometry(.262, 32, 16, 0, Math.PI * 2, Math.PI * .56, Math.PI * .4), mat.beard, [0, .005, .006], head); beard.scale.set(.93, 1.1, .97);
+  const hair = mesh(new THREE.SphereGeometry(.27, 32, 16, 0, Math.PI * 2, 0, Math.PI * .42), mat.hair, [0, .03, -.01], head); hair.scale.set(.95, 1.08, 1);
+  // backwards cap
+  const capTop = mesh(new THREE.SphereGeometry(.275, 32, 16, 0, Math.PI * 2, 0, Math.PI * .33), mat.cap, [0, .06, -.01], head); capTop.scale.set(.96, 1.05, 1);
+  const brim = mesh(new THREE.CylinderGeometry(.16, .16, .018, 24, 1, false, 0, Math.PI), mat.cap, [0, .1, -.23], head); brim.rotation.set(-.15, Math.PI / 2, 0); brim.scale.set(1, 1, 1.25);
+  mesh(new THREE.SphereGeometry(.055, 12, 10), mat.skin, [-.245, -.01, 0], head); mesh(new THREE.SphereGeometry(.055, 12, 10), mat.skin, [.245, -.01, 0], head);
+  // eyes
+  const eyes = [-.085, .085].map((x) => {
+    const g = new THREE.Group(); g.position.set(x, .03, .215); head.add(g);
+    const w = mesh(new THREE.SphereGeometry(.045, 18, 14), mat.white, [0, 0, 0], g); w.scale.set(1, .85, .55);
+    const p = mesh(new THREE.SphereGeometry(.022, 12, 10), mat.pupil, [0, 0, .022], g);
+    return { g, w, p };
+  });
+  [-.085, .085].forEach((x, i) => { const b = mesh(new THREE.BoxGeometry(.1, .018, .02), mat.hair, [x, .095, .232], head); b.rotation.z = i ? -.12 : .12; });
+  const nose = mesh(new THREE.SphereGeometry(.035, 14, 12), mat.skin, [0, -.02, .25], head); nose.scale.set(1, 1.25, 1.15);
+  mesh(new THREE.BoxGeometry(.09, .012, .015), mat.beard, [0, -.1, .236], head);
+  // round glasses
+  [-.085, .085].forEach((x) => { const r = mesh(new THREE.TorusGeometry(.062, .008, 8, 24), mat.frame, [x, .03, .25], head); });
+  mesh(new THREE.CylinderGeometry(.006, .006, .05, 6), mat.frame, [0, .04, .255], head).rotation.z = Math.PI / 2;
+
+  // ---- camera rig on the right shoulder ----
+  const rigPivot = new THREE.Group(); rigPivot.position.set(.3, 1.66, .02); avatar.add(rigPivot);
+  const rig = new THREE.Group(); rigPivot.add(rig); rig.position.set(0, .12, .05);
+  mesh(new THREE.BoxGeometry(.24, .22, .4), mat.rig, [0, 0, 0], rig);
+  mesh(new THREE.BoxGeometry(.2, .05, .3), mat.rig2, [0, .14, -.02], rig);
+  mesh(new THREE.BoxGeometry(.04, .09, .04), mat.rig2, [0, .19, .1], rig); mesh(new THREE.BoxGeometry(.04, .09, .04), mat.rig2, [0, .19, -.14], rig);
+  mesh(new THREE.BoxGeometry(.03, .03, .3), mat.rig2, [0, .24, -.02], rig);
+  const lens = mesh(new THREE.CylinderGeometry(.085, .09, .3, 24), mat.rig2, [0, 0, .34], rig); lens.rotation.x = Math.PI / 2;
+  mesh(new THREE.TorusGeometry(.092, .012, 8, 24), mat.rig, [0, 0, .28], rig);
+  mesh(new THREE.TorusGeometry(.092, .012, 8, 24), mat.rig, [0, 0, .39], rig);
+  const glass = mesh(new THREE.CircleGeometry(.078, 24), mat.glass, [0, 0, .492], rig);
+  const mb = mesh(new THREE.BoxGeometry(.3, .22, .1, 1, 1, 1), mat.rig, [0, 0, .54], rig);
+  mesh(new THREE.BoxGeometry(.26, .18, .02), new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 1 }), [0, 0, .595], rig);
+  const monitor = new THREE.Group(); monitor.position.set(-.2, .14, .02); monitor.rotation.y = -.5; rig.add(monitor);
+  mesh(new THREE.BoxGeometry(.02, .13, .2), mat.rig, [0, 0, 0], monitor);
+  const scr = mesh(new THREE.PlaneGeometry(.18, .11), mat.screen, [-.011, 0, 0], monitor); scr.rotation.y = -Math.PI / 2;
+  const tally = mesh(new THREE.SphereGeometry(.014, 10, 8), mat.red, [.09, .12, .19], rig);
+  mesh(new THREE.CylinderGeometry(.03, .035, .12, 14), mat.rig2, [-.1, .05, -.24], rig).rotation.x = Math.PI / 2;  // EVF
+
+  // hands on the rig
+  const handR = mesh(new THREE.SphereGeometry(.07, 14, 12), mat.skin, [.13, -.12, .05], rig);
+  const handL = mesh(new THREE.SphereGeometry(.07, 14, 12), mat.skin, [-.06, -.07, .34], rig);
+
+  // limbs that stretch between two moving points
+  const limbGeo = new THREE.CapsuleGeometry(.075, 1, 6, 12);
+  const mkLimb = (m) => { const o = new THREE.Mesh(limbGeo, m); o.castShadow = true; avatar.add(o); return o; };
+  const upR = mkLimb(mat.jacket), loR = mkLimb(mat.jacket), upL = mkLimb(mat.jacket), loL = mkLimb(mat.jacket);
+  const UP = new THREE.Vector3(0, 1, 0), tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3(), tmpD = new THREE.Vector3();
+  function stretch(o, a, b, r = 1) {
+    tmpD.subVectors(b, a); const len = tmpD.length();
+    o.position.copy(a).addScaledVector(tmpD, .5);
+    o.quaternion.setFromUnitVectors(UP, tmpD.normalize());
+    o.scale.set(r, Math.max(.01, len - .15), r);
+  }
+  const shoulderR = new THREE.Vector3(.38, 1.55, 0), shoulderL = new THREE.Vector3(-.38, 1.55, 0);
+  const elbowR = new THREE.Vector3(), elbowL = new THREE.Vector3();
+  function arms() {
+    avatar.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(avatar.matrixWorld).invert();
+    const hR = handR.getWorldPosition(tmpA).applyMatrix4(inv).clone();
+    const hL = handL.getWorldPosition(tmpB).applyMatrix4(inv).clone();
+    const sR = shoulderR.clone().add(new THREE.Vector3(0, torso.position.y - .95, 0));
+    const sL = shoulderL.clone().add(new THREE.Vector3(0, torso.position.y - .95, 0));
+    elbowR.copy(sR).lerp(hR, .5).add(new THREE.Vector3(.16, -.2, -.05));
+    elbowL.copy(sL).lerp(hL, .5).add(new THREE.Vector3(-.12, -.22, .05));
+    stretch(upR, sR, elbowR); stretch(loR, elbowR, hR, .9); stretch(upL, sL, elbowL); stretch(loL, elbowL, hL, .9);
+  }
+
+  // ---- light: the lens throws a beam where he's aiming ----
+  const beamGeo = new THREE.ConeGeometry(.9, 4, 40, 1, true); beamGeo.rotateX(-Math.PI / 2); beamGeo.translate(0, 0, 2);
+  const beamMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { uColor: { value: new THREE.Color("#ffb05c") }, uOp: { value: .16 } },
+    vertexShader: "varying float vD; void main(){ vD = position.z / 4.0; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+    fragmentShader: "uniform vec3 uColor; uniform float uOp; varying float vD; void main(){ float a = pow(1.0 - clamp(vD,0.0,1.0), 2.2) * uOp; gl_FragColor = vec4(uColor * a, a); }",
+  });
+  const beam = new THREE.Mesh(beamGeo, beamMat);
+  beam.position.set(0, 0, .5); rig.add(beam);
+  const spot = new THREE.SpotLight(0xffb05c, 14, 14, .42, .6, 1.4); spot.position.set(0, 0, .5); rig.add(spot);
+  const spotTarget = new THREE.Object3D(); scene3.add(spotTarget); spot.target = spotTarget;
+
+  scene3.add(new THREE.HemisphereLight(0x9fb2c8, 0x2a1d12, 1.1));
+  const fill = new THREE.PointLight(0xffe0bc, 10, 10, 2); fill.position.set(.6, 2.2, 3.2); world.add(fill);
+  const key = new THREE.DirectionalLight(0xffd2a1, 2.2); key.position.set(3.5, 5, 4); key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024); key.shadow.camera.left = -3; key.shadow.camera.right = 3; key.shadow.camera.top = 4; key.shadow.camera.bottom = -1; key.shadow.bias = -.0005;
+  world.add(key); world.add(key.target);
+  const rim = new THREE.PointLight(0x7fb2ff, 22, 9, 2); rim.position.set(-2.2, 2.6, -2.2); world.add(rim);
+  const rim2 = new THREE.PointLight(0xffb05c, 14, 8, 2); rim2.position.set(2.4, 2.2, -2.4); world.add(rim2);
+  const flash = new THREE.PointLight(0xffffff, 0, 8, 2); flash.position.set(0, 1.8, 1.6); world.add(flash);
+
+  // set dressing: two light stands with glowing softboxes behind him
+  function stand(x, z, col) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); world.add(g);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, 2.3, 8), mat.rig); pole.position.y = 1.15; g.add(pole);
+    for (let i = 0; i < 3; i++) { const l = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 6), mat.rig); const a = i * Math.PI * 2 / 3; l.position.set(Math.cos(a) * .2, .25, Math.sin(a) * .2); l.rotation.set(Math.sin(a) * .7, 0, -Math.cos(a) * .7); g.add(l); }
+    const box = new THREE.Mesh(new THREE.BoxGeometry(.7, .5, .08), new THREE.MeshStandardMaterial({ color: 0x111111, emissive: new THREE.Color(col), emissiveIntensity: .55 })); box.position.y = 2.35; box.lookAt(0, 1.4, 4); g.add(box);
+    return box;
+  }
+  const sb1 = stand(-2.3, -1.9, 0x9cc4ff), sb2 = stand(2.5, -2.1, 0xffc890);
+
+  // floating dust
+  const N = 700, dpos = new Float32Array(N * 3), dsp = new Float32Array(N);
+  for (let i = 0; i < N; i++) { dpos[i * 3] = (Math.random() - .5) * 12; dpos[i * 3 + 1] = Math.random() * 5; dpos[i * 3 + 2] = (Math.random() - .5) * 8; dsp[i] = .05 + Math.random() * .15; }
+  const dgeo = new THREE.BufferGeometry(); dgeo.setAttribute("position", new THREE.BufferAttribute(dpos, 3));
+  const dust = new THREE.Points(dgeo, new THREE.PointsMaterial({ color: 0xffe2bf, size: .022, transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene3.add(dust);
+
+  // ---- interaction state ----
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -2.6);
+  const aim = new THREE.Vector3(0, 1.4, 4), aimS = aim.clone();
+  let takeN = 1, kick = 0, blinkT = 2, scroll = 0;
+  addEventListener("scroll", () => { scroll = scrollY; }, { passive: true });
+  function screenToWorld(x, y, out) {
+    ndc.set((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
+    ray.setFromCamera(ndc, camera); ray.ray.intersectPlane(plane, out); return out;
+  }
+  addEventListener("click", (e) => {
+    if (scene !== "01" || e.target.closest("a, button, .card")) return;
+    takeN++; kick = 1; flash.intensity = 30;
+    $("#take").textContent = String(takeN).padStart(2, "0");
+    const f = $("#flash"); f.textContent = `Take ${String(takeN).padStart(2, "0")} — Action`; f.classList.add("on"); setTimeout(() => f.classList.remove("on"), 1300);
+  });
+
+  const accentCol = new THREE.Color("#ffb05c"), accentNow = accentCol.clone();
+  window.__stage = { setAccent: (h) => accentCol.set(h) };
+
+  // framing: big on the right in the opening, a small "director's monitor" in the corner later
+  const pose = { x: 1.55, y: -.15, s: 1 };
+  function resize() {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  addEventListener("resize", resize); resize();
+
+  const clock = new THREE.Clock();
+  const mmEl = $("#mm"), tEl = $("#tstop");
+  let mm = 35;
+  function frame() {
+    const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+    const portrait = innerWidth / innerHeight < .9;
+    const heroK = Math.max(0, Math.min(1, 1 - scroll / (innerHeight * .9)));
+    // pose per scene
+    const tx = portrait ? (heroK > .2 ? .2 : 1.05) : (heroK > .2 ? 2.05 : 2.9);
+    const ty = portrait ? (heroK > .2 ? .35 : -1.4) : (heroK > .2 ? -.75 : -1.15);
+    const ts = portrait ? (heroK > .2 ? .95 : .42) : (heroK > .2 ? 1.45 : .46);
+    pose.x += (tx - pose.x) * .06; pose.y += (ty - pose.y) * .06; pose.s += (ts - pose.s) * .06;
+    world.position.set(pose.x, pose.y, 0); world.scale.setScalar(pose.s);
+    world.rotation.y = -.18 + pointer.nx * .08;
+
+    // lens: cursor height racks the focal length
+    const want = 28 + (1 - (pointer.ny + 1) / 2) * 0 + ((pointer.y / innerHeight)) * 22;
+    mm += (want - mm) * .08; mmEl.textContent = Math.round(mm); tEl.textContent = (1.8 + (mm - 28) / 22 * 2).toFixed(1);
+    camera.fov = 2 * Math.atan(18 / mm) * 180 / Math.PI * .62; camera.updateProjectionMatrix();
+    camera.position.x += ((pointer.nx * .45) - camera.position.x) * .05;
+    camera.position.y += ((1.35 + pointer.ny * .25) - camera.position.y) * .05;
+    camera.lookAt(0, 1.15, 0);
+
+    // what is he framing?
+    if (lookOverride && document.contains(lookOverride)) {
+      const r = lookOverride.getBoundingClientRect(); screenToWorld(r.left + r.width / 2, r.top + r.height / 2, aim);
+    } else {
+      const idle = performance.now() - pointer.moved > 4000;
+      if (idle && !reduce) screenToWorld(innerWidth * (.5 + Math.sin(t * .35) * .35), innerHeight * (.42 + Math.sin(t * .23) * .15), aim);
+      else screenToWorld(pointer.x, pointer.y, aim);
+    }
+    aimS.lerp(aim, .09);
+    const local = world.worldToLocal(aimS.clone());
+
+    // head + eyes
+    const hp0 = new THREE.Vector3(); head.getWorldPosition(hp0); const hl = world.worldToLocal(hp0.clone());
+    const dx = local.x - hl.x, dy = local.y - hl.y, dz = Math.max(.6, local.z - hl.z);
+    const yaw = Math.max(-.9, Math.min(.9, Math.atan2(dx, dz))), pitch = Math.max(-.5, Math.min(.45, -Math.atan2(dy, dz)));
+    neckPivot.rotation.y += (yaw * .75 - neckPivot.rotation.y) * .12;
+    neckPivot.rotation.x += (pitch * .8 - neckPivot.rotation.x) * .12;
+    torso.rotation.y += (yaw * .25 - torso.rotation.y) * .06;
+    eyes.forEach((e) => { e.p.position.x = Math.max(-.018, Math.min(.018, yaw * .03)); e.p.position.y = Math.max(-.012, Math.min(.012, -pitch * .03)); });
+    // blink
+    blinkT -= dt; let lid = 1;
+    if (blinkT < 0) { const k = -blinkT / .14; lid = k < 1 ? Math.abs(1 - 2 * k) : 1; if (k >= 1) blinkT = 2 + Math.random() * 3.5; }
+    eyes.forEach((e) => { e.w.scale.y = .85 * Math.max(.08, lid); e.p.scale.y = Math.max(.08, lid); });
+
+    // camera rig follows the aim with a little operator lag; kick on "action"
+    const rp = new THREE.Vector3(); rigPivot.getWorldPosition(rp);
+    const m = new THREE.Matrix4().lookAt(rigPivot.worldToLocal(aimS.clone()).negate(), new THREE.Vector3(), new THREE.Vector3(0, 1, 0));
+    const q = new THREE.Quaternion().setFromRotationMatrix(m);
+    rig.quaternion.slerp(q, .1);
+    kick *= .9; rig.position.z = .05 - kick * .06; rig.position.y = .12 + kick * .03;
+    spotTarget.position.copy(aimS);
+
+    // breathing + idle sway
+    torso.position.y = .95 + Math.sin(t * 1.6) * .008;
+    torso.scale.set(1 + Math.sin(t * 1.6) * .006, 1, 1);
+    avatar.rotation.z = Math.sin(t * .7) * .012;
+    arms();
+
+    // light + accent
+    accentNow.lerp(accentCol, .06);
+    beamMat.uniforms.uColor.value.copy(accentNow); spot.color.copy(accentNow); rim2.color.copy(accentNow);
+    beamMat.uniforms.uOp.value = .12 + kick * .3 + (lookOverride ? .08 : 0);
+    flash.intensity *= .86;
+    tally.material.emissiveIntensity = (Math.sin(t * 6) > 0 ? 2.4 : .3);
+    scr.material.emissiveIntensity = 1.1 + Math.sin(t * 9) * .15;
+    sb1.material.emissiveIntensity = (.5 + Math.sin(t * 1.3) * .05) * heroK;
+    sb2.material.emissiveIntensity = .55 * heroK; sb1.parent.visible = sb2.parent.visible = heroK > .05;
+
+    // dust drifts up and away from the cursor
+    const pa = dgeo.attributes.position;
+    for (let i = 0; i < N; i++) { let y = pa.array[i * 3 + 1] + dsp[i] * dt; if (y > 5) y = 0; pa.array[i * 3 + 1] = y; pa.array[i * 3] += Math.sin(t * .3 + i) * .0008; }
+    pa.needsUpdate = true;
+    dust.position.x = pointer.nx * -.25;
+
+    renderer.render(scene3, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>

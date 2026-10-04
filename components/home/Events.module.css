@@ -1,0 +1,250 @@
+.section {
+  position: relative;
+  background: var(--ink);
+  padding-top: calc(var(--section) * 0.4);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: 0 var(--pad);
+  margin-bottom: clamp(60px, 9vw, 150px);
+}
+
+.header > :first-child {
+  grid-column: 1 / -1;
+  margin-bottom: clamp(2rem, 4vw, 4rem);
+}
+
+.title {
+  grid-column: 1 / span 10;
+  font-size: clamp(4.2rem, 14vw, 15.5rem);
+  line-height: 0.82;
+}
+
+.indent {
+  padding-left: 0.9em;
+}
+
+.intro {
+  grid-column: 8 / span 5;
+  margin-top: 2.4rem;
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  line-height: 1.2;
+}
+
+/* ---- transformation ---- */
+
+.transform {
+  position: relative;
+  height: 340vh;
+  margin-top: clamp(80px, 10vw, 160px);
+}
+
+.transformSticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.layerInner {
+  position: absolute;
+  inset: 0;
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--bone);
+  box-shadow: 0 0 24px rgba(236, 230, 218, 0.6);
+  z-index: 2;
+}
+
+.transformShade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(5, 5, 6, 0.85) 0%, rgba(5, 5, 6, 0) 38%),
+    linear-gradient(to bottom, rgba(5, 5, 6, 0.55) 0%, rgba(5, 5, 6, 0) 22%);
+}
+
+.transformTop {
+  position: absolute;
+  top: clamp(84px, 13vh, 130px);
+  left: var(--pad);
+  right: var(--pad);
+  display: flex;
+  justify-content: space-between;
+  color: var(--bone);
+}
+
+.tag {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--bone-faint);
+  border-radius: 99px;
+  transition: background 0.8s var(--ease-out), color 0.8s var(--ease-out);
+}
+
+.tag[data-after] {
+  background: var(--bone);
+  color: var(--ink);
+}
+
+.clock {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(130px, 21vh, 210px);
+  overflow: hidden;
+  height: clamp(3rem, 7vw, 7.4rem);
+}
+
+.clockTime {
+  display: block;
+  font-size: clamp(3rem, 7.6vw, 8rem);
+  font-weight: 500;
+  line-height: 0.92;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stages {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(26px, 5vh, 56px);
+}
+
+.stagesTrack {
+  height: 1px;
+  background: var(--line);
+  margin-bottom: 1.2rem;
+}
+
+.stagesFill {
+  height: 100%;
+  background: var(--bone);
+  transform-origin: left;
+}
+
+.stageList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+}
+
+.stageItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  opacity: 0.35;
+  transition: opacity 0.8s var(--ease-out);
+}
+
+.stageItem[data-active] {
+  opacity: 1;
+}
+
+.stageName {
+  font-size: clamp(1.4rem, 2.6vw, 2.8rem);
+  line-height: 1;
+}
+
+.stageArrow {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  color: var(--bone-dim);
+}
+
+/* ---- coda ---- */
+
+.coda {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: var(--section) var(--pad);
+  align-items: start;
+}
+
+.codaWide {
+  grid-column: 1 / span 8;
+  aspect-ratio: 16 / 10;
+}
+
+.codaSide {
+  grid-column: 10 / span 3;
+  margin-top: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.codaTall {
+  aspect-ratio: 4 / 5;
+}
+
+.codaText {
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  line-height: 1.2;
+}
+
+@media (max-width: 1024px) {
+  .title {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    grid-column: 4 / span 9;
+  }
+
+  }
+
+@media (max-width: 760px) {
+  .intro {
+    grid-column: 1 / -1;
+  }
+
+  
+  .transform {
+    height: 300vh;
+  }
+
+  .stageList {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .stageArrow {
+    display: none;
+  }
+
+  .clock {
+    bottom: 180px;
+  }
+
+  .codaWide,
+  .codaSide {
+    grid-column: 1 / -1;
+  }
+
+  .codaSide {
+    margin-top: 2rem;
+    flex-direction: column-reverse;
+  }
+
+  .codaTall {
+    width: 70%;
+    margin-left: auto;
+  }
+}

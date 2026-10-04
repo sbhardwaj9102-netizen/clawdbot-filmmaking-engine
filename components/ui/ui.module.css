@@ -1,0 +1,17 @@
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.sectionIndex {
+  color: currentColor;
+}
+
+.sectionRule {
+  width: clamp(28px, 4vw, 64px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}

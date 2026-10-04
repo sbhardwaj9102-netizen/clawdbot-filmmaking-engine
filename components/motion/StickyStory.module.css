@@ -1,0 +1,170 @@
+.story {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: 0 var(--pad);
+}
+
+.stickyCol {
+  grid-column: 1 / span 7;
+  position: relative;
+}
+
+.story[data-side="right"] .stickyCol {
+  grid-column: 6 / span 7;
+  grid-row: 1;
+}
+
+.sticky {
+  position: sticky;
+  top: 11vh;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  color: var(--bone);
+  list-style: none;
+}
+
+.railItem {
+  display: inline-flex;
+  gap: 0.9rem;
+  opacity: 0.32;
+  transition: opacity 0.9s var(--ease-out);
+}
+
+.railItem[data-on] {
+  opacity: 1;
+}
+
+.railArrow {
+  color: var(--bone-dim);
+}
+
+.frame {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #0d0d0e;
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 5, 6, 0.7), rgba(5, 5, 6, 0) 35%);
+  pointer-events: none;
+}
+
+.meta {
+  position: absolute;
+  left: 1.4rem;
+  right: 1.4rem;
+  bottom: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  color: var(--bone);
+}
+
+.steps {
+  grid-column: 9 / span 4;
+  padding: 30vh 0 34vh;
+  list-style: none;
+}
+
+.story[data-side="right"] .steps {
+  grid-column: 1 / span 4;
+  grid-row: 1;
+}
+
+.step {
+  min-height: 64vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.1rem;
+  opacity: 0.22;
+  transition: opacity 1s var(--ease-out);
+}
+
+.step[data-active] {
+  opacity: 1;
+}
+
+.stepIndex {
+  color: var(--accent);
+}
+
+.stepTitle {
+  font-size: clamp(2.6rem, 5.2vw, 5.8rem);
+  line-height: 0.86;
+}
+
+.stepBody {
+  max-width: 32ch;
+  color: var(--bone-dim);
+  line-height: 1.5;
+}
+
+.mobileImage {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .stickyCol,
+  .story[data-side="right"] .stickyCol {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+
+  .steps,
+  .story[data-side="right"] .steps {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .stickyCol,
+  .story[data-side="right"] .stickyCol {
+    display: none;
+  }
+
+  .steps,
+  .story[data-side="right"] .steps {
+    grid-column: 1 / -1;
+    padding: 0;
+  }
+
+  .step {
+    min-height: 0;
+    opacity: 1;
+    padding: 2.4rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobileImage {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .mobileFrame {
+    aspect-ratio: 4 / 3;
+  }
+
+  .mobileCaption {
+    color: var(--bone-dim);
+  }
+}
