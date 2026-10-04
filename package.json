@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "npx serve@latest out",
     "typecheck": "tsc --noEmit",
-    "placeholders": "python3 scripts/placeholders/generate.py"
+    "placeholders": "python3 scripts/placeholders/generate.py",
+    "build:preview": "next build && node scripts/static-preview.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

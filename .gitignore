@@ -1,6 +1,7 @@
 node_modules/
 .next/
 out/
+out-preview/
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store

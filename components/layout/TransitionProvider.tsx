@@ -32,6 +32,16 @@ export const usePageTransition = () => useContext(TransitionContext);
 const clean = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p) || "/";
 
 /**
+ * Portable static preview (`npm run build:preview`): the site may be hosted
+ * under an unknown sub-path, so pages are linked relatively and navigated
+ * with full page loads. `scripts/static-preview.mjs` sets these globals.
+ */
+type PreviewWindow = Window & { __B?: string; __ROUTE?: string };
+const preview = () => (typeof window !== "undefined" ? (window as PreviewWindow).__B : undefined);
+const previewHref = (path: string, hash?: string) =>
+  `${preview()}${path === "/" ? "index.html" : `${path.slice(1)}/index.html`}${hash ? `#${hash}` : ""}`;
+
+/**
  * Full-screen page transitions.
  *  - "project": the clicked card's image expands to fill the screen, the route
  *    changes underneath, and the case-study hero (same image) is revealed.
@@ -50,7 +60,8 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
       if (busy.current) return;
       const [rawPath, hash] = r.href.split("#");
       const path = clean(rawPath || "/");
-      if (path === clean(pathname)) {
+      const current = preview() !== undefined ? (window as PreviewWindow).__ROUTE ?? "/" : clean(pathname);
+      if (path === current) {
         // same page: just glide to the section
         scrollToTarget(lenis, hash ? `#${hash}` : 0);
         return;
@@ -66,6 +77,10 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const onCovered = useCallback(() => {
     if (!req) return;
     setPhase("hold");
+    if (preview() !== undefined) {
+      window.location.href = previewHref(req.path, req.hash);
+      return;
+    }
     router.push(req.path === "/" ? "/" : `${req.path}/`, { scroll: false });
   }, [req, router]);
 
