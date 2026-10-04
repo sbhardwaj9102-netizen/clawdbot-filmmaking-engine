@@ -1,0 +1,130 @@
+.about {
+  position: relative;
+  background: var(--paper);
+  color: var(--paper-ink);
+  padding: var(--section) var(--pad);
+}
+
+.about ::selection {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  row-gap: clamp(2rem, 5vw, 5rem);
+}
+
+.labelRow {
+  grid-column: 1 / -1;
+}
+
+.label {
+  color: var(--paper-dim);
+}
+
+.portraitCol {
+  grid-column: 1 / span 4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.portrait {
+  aspect-ratio: 4 / 5;
+}
+
+.caption {
+  display: flex;
+  justify-content: space-between;
+  color: var(--paper-dim);
+}
+
+.textCol {
+  grid-column: 6 / span 7;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: clamp(3.6rem, 9.6vw, 10.5rem);
+  line-height: 0.84;
+}
+
+.bio {
+  margin-top: clamp(2rem, 3.5vw, 3.6rem);
+  font-size: clamp(1.5rem, 2.5vw, 2.6rem);
+  line-height: 1.12;
+  max-width: 24ch;
+}
+
+.edu {
+  margin-top: clamp(3.6rem, 7vw, 7rem);
+}
+
+.eduHead {
+  display: flex;
+  justify-content: space-between;
+  color: var(--paper-dim);
+  margin-bottom: 1rem;
+}
+
+.eduItem {
+  color: var(--paper-ink);
+}
+
+.eduRow {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr auto;
+  gap: var(--gap);
+  align-items: baseline;
+  padding: 1.25rem 0 1.5rem;
+}
+
+.school {
+  font-size: clamp(1.25rem, 1.9vw, 2rem);
+  line-height: 0.98;
+}
+
+.degree {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: rgba(18, 18, 18, 0.78);
+}
+
+.note {
+  color: var(--paper-dim);
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .portraitCol {
+    grid-column: 1 / span 5;
+  }
+
+  .textCol {
+    grid-column: 6 / span 7;
+  }
+
+  .eduRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .portraitCol,
+  .textCol {
+    grid-column: 1 / -1;
+  }
+
+  .portraitCol {
+    width: 78%;
+  }
+
+  .name {
+    font-size: clamp(3.4rem, 17vw, 6rem);
+  }
+}

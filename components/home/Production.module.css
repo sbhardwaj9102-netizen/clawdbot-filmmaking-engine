@@ -1,0 +1,313 @@
+.section {
+  position: relative;
+  background: var(--ink);
+  padding-top: calc(var(--section) * 0.6);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  padding: 0 var(--pad);
+  margin-bottom: clamp(40px, 6vw, 100px);
+}
+
+.header > :first-child {
+  grid-column: 1 / -1;
+  margin-bottom: clamp(2rem, 4vw, 4rem);
+}
+
+.title {
+  grid-column: 1 / span 10;
+  font-size: clamp(4.2rem, 14vw, 15.5rem);
+  line-height: 0.82;
+}
+
+.l2 {
+  padding-left: 1.4em;
+}
+
+.l3 {
+  padding-left: 0.7em;
+}
+
+.intro {
+  grid-column: 9 / span 4;
+  margin-top: 2.4rem;
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  line-height: 1.2;
+  color: var(--bone);
+}
+
+/* ---- pinned horizontal process ---- */
+
+.h {
+  background: var(--ink);
+}
+
+.hTop {
+  position: absolute;
+  top: clamp(80px, 13vh, 130px);
+  left: var(--pad);
+  right: var(--pad);
+  display: flex;
+  justify-content: space-between;
+  color: var(--bone-dim);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.track {
+  align-items: stretch;
+  padding: 0 var(--pad);
+  gap: 0;
+}
+
+.stage {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-width: 38vw;
+  padding-right: 8vw;
+}
+
+.ghost {
+  position: absolute;
+  left: -0.04em;
+  top: 50%;
+  translate: 0 -54%;
+  z-index: -1;
+  font-size: clamp(12rem, 34vh, 26rem);
+  font-weight: 500;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(236, 230, 218, 0.1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.track[data-stacked] .ghost {
+  display: none;
+}
+
+.stageTop {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+  color: var(--bone-dim);
+}
+
+.stageNum {
+  color: var(--accent);
+}
+
+.word {
+  font-size: clamp(3.6rem, 9vw, 10rem);
+  line-height: 0.86;
+  white-space: nowrap;
+}
+
+.wordMask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+
+.wordInner {
+  display: inline-block;
+}
+
+.body {
+  max-width: 30ch;
+  margin-top: 1.8rem;
+  font-size: clamp(1rem, 1.1vw, 1.12rem);
+  line-height: 1.5;
+  color: var(--bone-dim);
+}
+
+.connector {
+  position: absolute;
+  top: calc(1.6rem + 1.4em + clamp(1.8rem, 4.5vw, 5rem));
+  right: 1.6vw;
+  width: 4.8vw;
+  display: flex;
+  align-items: center;
+}
+
+.connectorLine {
+  flex: 1;
+  height: 1px;
+  background: var(--bone-faint);
+  transform-origin: left;
+}
+
+.connectorHead {
+  font-family: var(--font-mono);
+  color: var(--bone-dim);
+  margin-left: 0.4rem;
+}
+
+.arrowV {
+  display: none;
+}
+
+.progress {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(28px, 6vh, 64px);
+}
+
+.progressTrack {
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--bone);
+  transform-origin: left;
+}
+
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+  color: var(--bone);
+}
+
+/* Stacked layout (below 900px the track becomes a vertical sequence) */
+.track[data-stacked] {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--pad);
+  gap: 0;
+}
+
+.track[data-stacked] .stage {
+  min-width: 0;
+  padding: 2.4rem 0 3.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.track[data-stacked] .word {
+  font-size: clamp(3rem, 15vw, 6rem);
+}
+
+.track[data-stacked] .connector {
+  position: static;
+  width: auto;
+  margin-top: 2rem;
+}
+
+.track[data-stacked] .connectorLine {
+  display: none;
+}
+
+.track[data-stacked] .connectorHead {
+  margin-left: 0;
+  font-size: 1.4rem;
+}
+
+.track[data-stacked] .arrowH {
+  display: none;
+}
+
+.track[data-stacked] .arrowV {
+  display: inline;
+}
+
+/* ---- capabilities ---- */
+
+.caps {
+  padding: var(--section) var(--pad) var(--section);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+}
+
+.capsHead {
+  grid-column: 1 / span 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.capsIntro {
+  font-size: clamp(1.2rem, 1.6vw, 1.55rem);
+  line-height: 1.2;
+  max-width: 22ch;
+}
+
+.capsList {
+  grid-column: 6 / span 7;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--gap);
+}
+
+.cap {
+  color: var(--bone);
+}
+
+.capRow {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.2rem 0 1.6rem;
+}
+
+.capIndex {
+  color: var(--bone-faint);
+  transition: color 0.6s var(--ease-out);
+}
+
+.capName {
+  font-size: clamp(1.5rem, 2.3vw, 2.35rem);
+  font-weight: 550;
+  line-height: 0.95;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.cap:hover .capName {
+  transform: translateX(10px);
+}
+
+.cap:hover .capIndex {
+  color: var(--accent);
+}
+
+@media (max-width: 1024px) {
+  .title {
+    grid-column: 1 / -1;
+  }
+
+  .intro {
+    grid-column: 5 / span 8;
+  }
+
+  .capsHead {
+    grid-column: 1 / -1;
+    margin-bottom: 3rem;
+  }
+
+  .capsList {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .intro {
+    grid-column: 1 / -1;
+  }
+
+  .capsList {
+    grid-template-columns: 1fr;
+  }
+
+  .capName {
+    font-size: clamp(1.7rem, 8vw, 2.4rem);
+  }
+}

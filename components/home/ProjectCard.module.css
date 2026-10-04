@@ -1,0 +1,182 @@
+.card {
+  position: relative;
+}
+
+.link {
+  display: block;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  padding-bottom: 1rem;
+}
+
+.number {
+  font-size: clamp(2.4rem, 4.4vw, 4.6rem);
+  font-weight: 500;
+  line-height: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.roll {
+  display: inline-flex;
+}
+
+.rollMask {
+  display: inline-block;
+  height: 0.8em;
+  overflow: hidden;
+}
+
+.rollCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.rollCol > span {
+  display: block;
+  height: 0.8em;
+  line-height: 0.8;
+}
+
+.role {
+  color: var(--bone-dim);
+  padding-bottom: 0.1rem;
+}
+
+.view {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.6rem;
+  padding-bottom: 0.1rem;
+  opacity: 0;
+  transform: translateX(-14px);
+  transition: opacity 0.8s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.card[data-hover] .view {
+  opacity: 1;
+  transform: none;
+}
+
+.card[data-hover] .arrow {
+  transform: translateX(6px);
+}
+
+.imageWrap {
+  position: relative;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 16 / 8.2;
+}
+
+.card[data-variant="tall"] .image {
+  aspect-ratio: 4 / 5;
+}
+
+.imageInner :global(img) {
+  transition: transform 1.8s var(--ease-out), filter 1.8s var(--ease-out);
+  transform-origin: 50% 55%;
+  filter: saturate(0.92) brightness(0.92);
+}
+
+.card[data-hover] .imageInner :global(img) {
+  transform: scale(1.06);
+  filter: saturate(1) brightness(1);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(5, 5, 6, 0.78) 0%, rgba(5, 5, 6, 0.1) 45%, rgba(5, 5, 6, 0) 70%),
+    rgba(5, 5, 6, 0.08);
+  transition: background-color 1.2s var(--ease-out);
+}
+
+.card[data-hover] .overlay {
+  background-color: rgba(5, 5, 6, 0.28);
+}
+
+.title {
+  position: absolute;
+  left: clamp(16px, 2.4vw, 40px);
+  right: clamp(16px, 2.4vw, 40px);
+  bottom: clamp(14px, 2.2vw, 36px);
+  font-size: clamp(2.6rem, 9.4vw, 10.5rem);
+  font-weight: 600;
+  line-height: 0.84;
+  pointer-events: none;
+  transition: transform 1.3s var(--ease-out), letter-spacing 1.3s var(--ease-out);
+}
+
+.titleLine {
+  display: block;
+}
+
+.card[data-variant="wide"]:nth-of-type(2) .title {
+  font-size: clamp(2.2rem, 7.2vw, 8.4rem);
+}
+
+.card[data-variant="tall"] .title {
+  font-size: clamp(2.6rem, 7vw, 7.6rem);
+}
+
+.card[data-hover] .title {
+  transform: translateX(clamp(8px, 1.4vw, 24px));
+  letter-spacing: 0.005em;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  color: var(--bone);
+}
+
+.metaRight {
+  color: var(--bone-faint);
+}
+
+@media (hover: none) {
+  .view {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .image {
+    aspect-ratio: 4 / 4.4;
+  }
+
+  .card[data-variant="tall"] .image {
+    aspect-ratio: 4 / 5;
+  }
+
+  .card[data-variant="wide"]:nth-of-type(2) .title,
+  .title {
+    font-size: clamp(2.4rem, 12.5vw, 4.6rem);
+  }
+
+  .card[data-variant="tall"] .title {
+    font-size: clamp(2.6rem, 14vw, 4.6rem);
+  }
+
+  .view {
+    font-size: 0.6rem;
+  }
+}

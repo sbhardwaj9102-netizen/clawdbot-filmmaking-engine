@@ -1,0 +1,271 @@
+.hero {
+  position: relative;
+  height: 200vh;
+  height: 200svh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #050505;
+  will-change: clip-path;
+}
+
+.intro,
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 60% 50%;
+}
+
+.grade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(6, 6, 7, 0.92) 0%, rgba(6, 6, 7, 0.55) 24%, rgba(6, 6, 7, 0) 52%),
+    linear-gradient(to right, rgba(6, 6, 7, 0.55) 0%, rgba(6, 6, 7, 0) 55%),
+    linear-gradient(to bottom, rgba(6, 6, 7, 0.45) 0%, rgba(6, 6, 7, 0) 18%);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: #050505;
+}
+
+.content {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(150px, 21vh, 220px);
+  display: flex;
+  flex-direction: column;
+}
+
+.recWrap {
+  position: absolute;
+  right: var(--pad);
+  top: clamp(96px, 15vh, 150px);
+}
+
+.rec {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--bone-dim);
+}
+
+.recDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d8432f;
+  animation: blink 1.6s steps(2, jump-none) infinite;
+}
+
+.tc {
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+
+.name {
+  margin-left: -0.04em;
+}
+
+.nameLines {
+  display: block;
+  font-size: clamp(4.6rem, 17.6vw, 21rem);
+  font-weight: 650;
+  font-stretch: 68%;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+}
+
+.under {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  margin-top: clamp(1.4rem, 2.6vw, 2.6rem);
+  align-items: end;
+}
+
+.roles {
+  grid-column: 1 / span 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.roleMask {
+  display: block;
+  overflow: hidden;
+}
+
+.role {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-stretch: 85%;
+  font-weight: 500;
+  font-size: clamp(0.95rem, 1.35vw, 1.3rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.tagline {
+  grid-column: 7 / span 6;
+  justify-self: end;
+  text-align: right;
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.1vw, 2.15rem);
+  line-height: 1.15;
+  color: var(--bone);
+  max-width: 22ch;
+}
+
+.strip {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(22px, 4vh, 44px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--gap);
+}
+
+.stripRule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-1 * clamp(16px, 2.4vh, 26px));
+  height: 1px;
+  background: var(--line);
+  transform-origin: left;
+}
+
+.proof {
+  display: flex;
+  gap: clamp(1.2rem, 3.4vw, 4rem);
+}
+
+.proofItem {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.7rem;
+}
+
+.proofValue {
+  font-size: clamp(2rem, 3.6vw, 3.6rem);
+  font-weight: 500;
+  line-height: 0.78;
+  font-variant-numeric: tabular-nums;
+}
+
+.proofText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.35;
+}
+
+.proofText > :first-child {
+  color: var(--bone);
+}
+
+.proofProject {
+  color: var(--bone-dim);
+}
+
+.cue {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--bone-dim);
+}
+
+.cueArrow {
+  display: inline-block;
+  animation: drift 2.4s var(--ease) infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(-3px); opacity: 0.5; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+@media (max-width: 1100px) {
+  .proof {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 1rem 2.4rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .content {
+    bottom: clamp(190px, 30vh, 260px);
+  }
+
+  .nameLines {
+    font-size: clamp(3.6rem, 19.5vw, 9rem);
+  }
+
+  .under {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+  }
+
+  .roles,
+  .tagline {
+    grid-column: 1 / -1;
+  }
+
+  .tagline {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .recWrap {
+    top: 92px;
+  }
+
+  .strip {
+    grid-template-columns: 1fr;
+  }
+
+  .proof {
+    gap: 0.9rem 1.6rem;
+  }
+
+  .proofValue {
+    font-size: 1.9rem;
+  }
+
+  .cue {
+    display: none;
+  }
+
+  .video {
+    object-position: 64% 50%;
+  }
+}

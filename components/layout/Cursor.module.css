@@ -1,0 +1,40 @@
+.dot,
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 120;
+  pointer-events: none;
+  translate: -50% -50%;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bone);
+  mix-blend-mode: difference;
+}
+
+.ring {
+  border-radius: 50%;
+  border: 1px solid rgba(236, 230, 218, 0.55);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  mix-blend-mode: difference;
+}
+
+.ring[data-big] {
+  mix-blend-mode: normal;
+  border-color: transparent;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0a0a0a;
+  white-space: nowrap;
+}

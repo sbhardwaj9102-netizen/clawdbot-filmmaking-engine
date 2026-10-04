@@ -1,0 +1,29 @@
+{
+  "name": "satyam-bhardwaj-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cinematic motion portfolio prototype for film producer Satyam Bhardwaj.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "npx serve@latest out",
+    "typecheck": "tsc --noEmit",
+    "placeholders": "python3 scripts/placeholders/generate.py"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "framer-motion": "^14.0.0",
+    "lenis": "^1.3.26",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19",
+    "typescript": "^5.9.3"
+  }
+}
