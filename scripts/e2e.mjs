@@ -77,6 +77,7 @@ const assert = (c, msg) => {
 
 async function open(opts = {}) {
   const context = await browser.newContext({
+    permissions: ["clipboard-read", "clipboard-write"],
     viewport: opts.viewport ?? { width: 1280, height: 720 },
     isMobile: !!opts.mobile,
     hasTouch: !!opts.mobile,
@@ -209,6 +210,21 @@ console.log(`\nE2E against ${BASE}\n`);
     assert(res.status() === 200 && (res.headers()["content-type"] ?? "").includes("pdf"), `resume PDF ${res.status()}`);
     await page.keyboard.press("Escape");
   });
+  await check("17a. Contact button opens the contact card: email copies, WhatsApp opens a chat", async () => {
+    await page.locator('button[data-shortcut="contact"]').click();
+    await until(page, () => window.__sb.store.getState().contactOpen);
+    const card = page.locator('section[role="dialog"]');
+    const wa = await card.locator('a[data-contact="whatsapp"]').getAttribute("href");
+    assert(wa?.startsWith("https://wa.me/") && (await card.locator('a[data-contact="whatsapp"]').getAttribute("target")) === "_blank", `whatsapp link ${wa}`);
+    assert((await card.locator('a[data-contact="email"]').getAttribute("href"))?.startsWith("mailto:"), "email link");
+    await card.locator('a[data-contact="email"]').click();
+    await card.getByText(/Copied/).waitFor({ timeout: 10000 });
+    const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ""));
+    assert(clip.includes("@"), `clipboard has "${clip}"`);
+    await shot(page, "09b-contact-button");
+    await card.getByRole("button", { name: "Back to the story" }).click();
+    await until(page, () => !window.__sb.store.getState().contactOpen);
+  });
   await check("17. contact: the final door → contact card", async () => {
     await page.evaluate(() => window.__sb.engine.jump("final"));
     await until(page, () => window.__sb.store.getState().contactOpen, null, 180000);
@@ -216,6 +232,7 @@ console.log(`\nE2E against ${BASE}\n`);
     await shot(page, "10-contact");
     const mail = await page.locator('section[role="dialog"] a[href^="mailto:"]').getAttribute("href");
     assert(mail?.includes("@"), "no email link");
+    assert(await page.locator('section[role="dialog"] a[data-contact="whatsapp"]').count(), "no WhatsApp link");
   });
   await check("18. Quick Mode opens over the experience", async () => {
     // from the contact card (the control bar steps aside while it is up)

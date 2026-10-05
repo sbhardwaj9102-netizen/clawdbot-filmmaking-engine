@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { profile } from "@/data/profile";
 import { jumpTargets } from "@/data/story/scenes";
 import { asset } from "@/lib/assets";
+import { emailHref, whatsappHref } from "@/lib/contact";
 import { jump, restart, setReducedMotion, setSound } from "@/systems/StoryEngine/engine";
 import { useStory } from "@/systems/StoryEngine/store";
 
@@ -87,7 +88,12 @@ export function Menu() {
                 </a>
               </li>
               <li>
-                <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+                <a href={emailHref()}>{profile.contact.email}</a>
+              </li>
+              <li>
+                <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" data-contact="whatsapp">
+                  WhatsApp — {profile.contact.whatsapp.display} ↗
+                </a>
               </li>
               {profile.contact.linkedin && (
                 <li>

@@ -3,6 +3,7 @@ import { projects } from "@/data/projects";
 import { arihant, ibr } from "@/data/worlds/business";
 import { events } from "@/data/worlds/events";
 import { asset, tex } from "@/lib/assets";
+import { emailHref, whatsappHref } from "@/lib/contact";
 
 import styles from "./QuickMode.module.css";
 
@@ -69,7 +70,10 @@ export function QuickMode({
           <a href={asset(profile.resumePdf)} download className={styles.primary}>
             Download resume (PDF)
           </a>
-          <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+          <a href={emailHref()}>{profile.contact.email}</a>
+          <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
+            WhatsApp ↗
+          </a>
           {profile.contact.linkedin && (
             <a href={profile.contact.linkedin} target="_blank" rel="noreferrer">
               LinkedIn ↗
@@ -238,7 +242,15 @@ export function QuickMode({
           <div>
             <dt>Email</dt>
             <dd>
-              <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+              <a href={emailHref()}>{profile.contact.email}</a>
+            </dd>
+          </div>
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>
+              <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
+                {profile.contact.whatsapp.display} ↗
+              </a>
             </dd>
           </div>
           <div>

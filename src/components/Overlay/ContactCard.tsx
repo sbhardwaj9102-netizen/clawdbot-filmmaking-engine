@@ -5,9 +5,10 @@ import { useEffect, useRef } from "react";
 import { profile } from "@/data/profile";
 import { finale, questions } from "@/data/story/questions";
 import { sceneById } from "@/data/story/scenes";
-import { asset } from "@/lib/assets";
 import { restart } from "@/systems/StoryEngine/engine";
 import { useStory } from "@/systems/StoryEngine/store";
+
+import { ContactLinks } from "@/components/Contact/ContactLinks";
 
 import styles from "./ContactCard.module.css";
 
@@ -53,26 +54,7 @@ export function ContactCard() {
         <p className={styles.variant}>{variant.line}</p>
         <p className={styles.cta}>Let&apos;s make something.</p>
 
-        <nav className={styles.links} aria-label="Contact">
-          <a ref={first} href={`mailto:${profile.contact.email}`}>
-            <span>Email</span>
-            <b>{profile.contact.email}</b>
-          </a>
-          {profile.contact.linkedin && (
-            <a href={profile.contact.linkedin} target="_blank" rel="noreferrer">
-              <span>LinkedIn</span>
-              <b>Profile ↗</b>
-            </a>
-          )}
-          <a href={asset(profile.resumePdf)} download>
-            <span>Resume</span>
-            <b>Download PDF ↓</b>
-          </a>
-          <a href={profile.contact.phoneHref}>
-            <span>Phone</span>
-            <b>{profile.contact.phone}</b>
-          </a>
-        </nav>
+        <ContactLinks className={styles.links} firstRef={first} kinds={["email", "whatsapp", "resume", "phone", "linkedin"]} />
 
         {route.length > 0 && (
           <p className={styles.route}>

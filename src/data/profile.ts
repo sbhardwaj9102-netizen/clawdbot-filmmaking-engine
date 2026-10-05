@@ -19,6 +19,15 @@ export const profile = {
     phone: "+91 9102458875",
     phoneHref: "tel:+919102458875",
     /**
+     * WhatsApp — opens a chat directly (wa.me). Uses the phone number from the CV;
+     * change `number` (country code + number, digits only) if WhatsApp is on another number.
+     */
+    whatsapp: {
+      number: "919102458875",
+      display: "+91 9102458875",
+      message: "Hi Satyam, I came across your portfolio and would like to talk.",
+    },
+    /**
      * Not present in the repository yet. Paste the full profile URL here
      * (e.g. "https://www.linkedin.com/in/…") and LINKEDIN appears everywhere.
      */

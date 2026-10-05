@@ -544,7 +544,7 @@ function updateExplore(dt: number, realDt: number) {
   const sc = rt.active!;
   const s = getStory();
   const a = rt.avatar;
-  const blocked = !!s.overlay || !!s.lightbox;
+  const blocked = !!s.overlay || !!s.lightbox || s.contactOpen;
   let metres = blocked ? 0 : rt.input + rt.held * dt;
   if ((s.autoWalk || sc.story.auto) && !s.questionOpen && !s.hotspot && !blocked) metres += 1.25 * dt;
   rt.input = 0;

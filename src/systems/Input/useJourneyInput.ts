@@ -26,7 +26,7 @@ export function useJourneyInput(enabled: boolean) {
 
     const onWheel = (e: WheelEvent) => {
       const s = getStory();
-      if (s.overlay || s.lightbox || uiOwns(e.target)) return;
+      if (s.overlay || s.lightbox || s.contactOpen || uiOwns(e.target)) return;
       e.preventDefault();
       const scale = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? window.innerHeight : 1;
       const dy = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * scale;
@@ -49,7 +49,7 @@ export function useJourneyInput(enabled: boolean) {
     const onTouchMove = (e: TouchEvent) => {
       if (!touching) return;
       const s = getStory();
-      if (s.overlay || s.lightbox) return;
+      if (s.overlay || s.lightbox || s.contactOpen) return;
       const y = e.touches[0].clientY;
       const now = performance.now();
       const dy = lastY - y;
@@ -93,7 +93,7 @@ export function useJourneyInput(enabled: boolean) {
         else if (s.hotspot) closeHotspot();
         return;
       }
-      if (s.overlay || s.lightbox) return;
+      if (s.overlay || s.lightbox || s.contactOpen) return;
       if (e.key === "ArrowDown" || e.key === "s" || e.key === "S" || e.key === "PageDown" || (e.key === " " && !el?.closest("button, a"))) {
         e.preventDefault();
         if (e.key === "PageDown" || e.key === " ") walk(3);

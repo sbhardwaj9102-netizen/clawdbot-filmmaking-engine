@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ExperienceRoot } from "@/components/Experience/ExperienceRoot";
 import { profile } from "@/data/profile";
 import { projects } from "@/data/projects";
+import { emailHref, whatsappHref } from "@/lib/contact";
 
 /**
  * Home: the interactive film. The static HTML carries a readable summary and
@@ -31,7 +32,8 @@ export default function Home() {
           ))}
         </ul>
         <p>
-          <Link href="/quick/">Quick Mode</Link> · <Link href="/resume/">Resume</Link> · <a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a>
+          <Link href="/quick/">Quick Mode</Link> · <Link href="/resume/">Resume</Link> · <a href={emailHref()}>{profile.contact.email}</a> ·{" "}
+          <a href={whatsappHref()}>WhatsApp</a>
         </p>
       </main>
       <noscript>

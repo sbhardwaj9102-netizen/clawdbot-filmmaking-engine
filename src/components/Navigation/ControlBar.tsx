@@ -62,6 +62,9 @@ export function ControlBar() {
           <a href={asset(profile.resumePdf)} download>
             Resume ↓
           </a>
+          <button type="button" onClick={() => useStory.setState({ contactOpen: true, overlay: null })} data-shortcut="contact">
+            Contact
+          </button>
           <button type="button" onClick={() => setSound(!sound)} aria-pressed={sound} className={styles.hideSm}>
             Sound {sound ? "on" : "off"}
           </button>

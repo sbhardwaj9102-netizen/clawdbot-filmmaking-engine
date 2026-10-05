@@ -11,7 +11,9 @@ converges on the career path, a quiet room with the resume on the desk, and a
 door that opens onto the contact card.
 
 A recruiter who wants none of that has **Quick Mode** (one clean page),
-**Resume** and **Menu** in the corner of every screen, including the loading screen.
+**Resume**, **Contact** and **Menu** in the corner of every screen, and Quick
+Mode, Resume, Email and WhatsApp on the loading screen. Contact means email (the
+address is also copied, in case no mail app is set up), WhatsApp, phone and the PDF.
 
 Built with **Next.js 16 (static export) · React 19 · three.js · React Three
 Fiber · drei · postprocessing · zustand**.
@@ -178,6 +180,9 @@ direction, not a claim.
   (see `public/assets/README.md`). Replace any file with a real still of the same
   name. When they are all real, set `assetsArePlaceholders: false` in
   `src/data/profile.ts` to remove the notice in Quick Mode.
+- **WhatsApp** opens a chat via `wa.me` using the phone number from the CV. If
+  WhatsApp is on a different number, change `profile.contact.whatsapp.number`
+  (country code + number, digits only) in `src/data/profile.ts`.
 - **LinkedIn** isn't in the repository. Add the URL to `profile.contact.linkedin`
   and it appears on the contact card, the menu, Quick Mode and the resume.
 - **The resume PDF** (`public/resume/Satyam-Bhardwaj-Resume.pdf`) is rendered from

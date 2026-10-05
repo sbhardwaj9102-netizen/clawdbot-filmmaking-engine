@@ -6,6 +6,7 @@ import { profile } from "@/data/profile";
 import { sceneById } from "@/data/story/scenes";
 import type { SceneId } from "@/data/story/types";
 import { asset } from "@/lib/assets";
+import { emailHref, whatsappHref } from "@/lib/contact";
 import { enter, savedJourney } from "@/systems/StoryEngine/engine";
 import { useStory } from "@/systems/StoryEngine/store";
 
@@ -99,7 +100,10 @@ export function Loader({ ready }: { ready: boolean }) {
         <a href={asset(profile.resumePdf)} download>
           Resume (PDF)
         </a>
-        <a href={`mailto:${profile.contact.email}`}>Email</a>
+        <a href={emailHref()}>Email</a>
+        <a href={whatsappHref()} target="_blank" rel="noopener noreferrer">
+          WhatsApp
+        </a>
       </nav>
     </div>
   );

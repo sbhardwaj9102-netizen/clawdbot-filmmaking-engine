@@ -1,4 +1,5 @@
 import { profile } from "@/data/profile";
+import { whatsappHref } from "@/lib/contact";
 
 import styles from "./ResumeDocument.module.css";
 
@@ -21,7 +22,7 @@ export function ResumeDocument() {
             <a href={`mailto:${c.email}`}>{c.email}</a>
           </li>
           <li>
-            <a href={c.phoneHref}>{c.phone}</a>
+            <a href={c.phoneHref}>{c.phone}</a> · <a href={whatsappHref()}>WhatsApp</a>
           </li>
           {c.linkedin && (
             <li>
