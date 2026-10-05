@@ -1,7 +1,7 @@
 .page {
   min-height: 100vh;
   padding: 0 var(--gutter) 64px;
-  background: #1a1b1e;
+  background: var(--background);
 }
 
 .bar {
@@ -16,7 +16,7 @@
   font-size: 10.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--white-dim);
+  color: var(--text-secondary);
 }
 
 .bar div {
@@ -25,14 +25,19 @@
   align-items: center;
 }
 
+.bar a {
+  padding: 8px 0;
+}
+
 .bar a:hover {
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .download {
-  padding: 0.7rem 1rem;
-  color: var(--black) !important;
-  background: var(--amber);
+  padding: 0.75rem 1.1rem !important;
+  border-radius: 999px;
+  color: var(--accent-contrast) !important;
+  background: var(--accent);
 }
 
 @page {

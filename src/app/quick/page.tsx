@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 
-import { QuickMode } from "@/components/QuickMode/QuickMode";
+import { QuickView } from "@/components/QuickView/QuickView";
 
 export const metadata: Metadata = {
-  title: "Quick Mode",
-  description: "Satyam Bhardwaj — work, experience, capabilities, about, resume and contact on one page.",
+  title: "Quick view",
+  description: "Satyam Bhardwaj — about, selected work, resume, skills, education and contact on one page.",
 };
 
-/** Quick Mode as a plain, fast, static page — no WebGL, nothing to wait for. */
+/** Quick view as a plain, fast, static page — no WebGL, nothing to wait for. */
 export default function QuickPage() {
   return (
     <main>
-      <QuickMode />
+      <QuickView />
     </main>
   );
 }

@@ -31,7 +31,7 @@ export type ProjectTheme = "aster" | "purple" | "rana" | "gluttony";
 export type Project = {
   /** URL slug — /work/<slug> */
   slug: string;
-  /** Story scene id for the project's world. */
+  /** Short id (also the old deep-link name). */
   scene: "aster" | "purple" | "rana" | "gluttony";
   number: string;
   title: string;
@@ -46,6 +46,4 @@ export type Project = {
   theme: ProjectTheme;
   facts: Fact[];
   sections: ProjectSection[];
-  /** Shown when a case study is still being prepared. */
-  status?: string;
 };

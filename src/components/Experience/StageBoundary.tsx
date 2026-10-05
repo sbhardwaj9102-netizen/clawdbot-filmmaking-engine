@@ -2,12 +2,12 @@
 
 import { Component, type ReactNode } from "react";
 
-import { useStory } from "@/systems/StoryEngine/store";
+import { setExperience } from "@/systems/Experience/store";
 
 /**
  * If the 3D stage throws (driver bug, lost context, out of memory), the
- * visitor is not left with a broken page: the stage is removed and Quick Mode
- * opens with everything in it.
+ * visitor is not left with a broken page: the stage is removed and the story
+ * carries on over still images.
  */
 export class StageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -17,8 +17,8 @@ export class StageBoundary extends Component<{ children: ReactNode }, { failed: 
   }
 
   componentDidCatch(error: unknown) {
-    console.warn("[stage] 3D experience unavailable, switching to Quick Mode.", error);
-    useStory.setState({ webgl: false, overlay: "quick" });
+    console.warn("[stage] 3D unavailable; continuing over still images.", error);
+    setExperience({ webgl: false });
   }
 
   render() {

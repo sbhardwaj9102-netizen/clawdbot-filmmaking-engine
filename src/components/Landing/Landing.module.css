@@ -1,0 +1,109 @@
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--gutter);
+  padding-bottom: max(var(--gutter), calc(env(safe-area-inset-bottom) + 24px));
+  pointer-events: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, var(--scrim) 0%, var(--scrim-clear) 62%),
+    linear-gradient(0deg, var(--scrim) 0%, var(--scrim-clear) 45%);
+  opacity: 0.92;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 760px;
+  margin-bottom: clamp(8px, 6vh, 72px);
+  pointer-events: auto;
+}
+
+.kicker {
+  color: var(--accent);
+  animation: rise 1.1s var(--ease-out) 0.2s both;
+}
+
+.name {
+  font-family: var(--font-serif);
+  font-size: var(--t-display);
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  animation: rise 1.4s var(--ease-out) 0.35s both;
+}
+
+.role {
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.2vw, 16px);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  animation: rise 1.4s var(--ease-out) 0.55s both;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+  animation: rise 1.2s var(--ease-out) 0.9s both;
+}
+
+.choices :global(.btn) {
+  min-height: 52px;
+  padding-inline: 1.6em;
+  font-size: 13px;
+}
+
+.meta {
+  padding-left: 0.7em;
+  margin-left: 0.2em;
+  border-left: 1px solid currentColor;
+  opacity: 0.75;
+  font-size: 11px;
+}
+
+.switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: -0.9em;
+  animation: rise 1.2s var(--ease-out) 1.1s both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (max-width: 640px) {
+  .landing {
+    align-items: flex-end;
+  }
+  .inner {
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .role {
+    letter-spacing: 0.22em;
+  }
+  .choices {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .choices :global(.btn) {
+    width: 100%;
+  }
+}

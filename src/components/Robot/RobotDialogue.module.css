@@ -1,0 +1,123 @@
+.wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 118px;
+  z-index: 45;
+  width: min(560px, calc(100vw - 2 * var(--gutter)));
+  transform: translateX(-50%);
+  animation: in 0.5s var(--ease-out) both;
+}
+.wrap.explore {
+  left: var(--gutter);
+  transform: none;
+  bottom: 28px;
+  width: min(440px, calc(100vw - 2 * var(--gutter)));
+}
+.wrap.end {
+  bottom: 118px;
+}
+
+.bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 12px 14px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.name span {
+  color: var(--text-muted);
+}
+
+.line {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.skip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+.skip:hover {
+  color: var(--text-primary);
+  background: var(--accent-soft);
+}
+.skip svg {
+  width: 14px;
+  height: 14px;
+}
+
+.face {
+  flex: none;
+  margin-top: 2px;
+}
+.shell {
+  fill: var(--text-primary);
+  opacity: 0.92;
+}
+.visor {
+  fill: var(--background);
+}
+.eye {
+  fill: var(--accent);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: talk 0.42s ease-in-out infinite alternate;
+}
+.antenna {
+  stroke: var(--text-primary);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+@keyframes talk {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.55);
+  }
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    bottom: 136px;
+  }
+  .wrap.explore {
+    bottom: 76px;
+  }
+  .line {
+    font-size: 15px;
+  }
+}

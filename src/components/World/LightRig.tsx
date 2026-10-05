@@ -4,25 +4,29 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Color, type DirectionalLight, type HemisphereLight, Object3D, type PointLight, type SpotLight, Vector3 } from "three";
 
-import type { LightSpec } from "@/scenes/types";
-import { rt } from "@/systems/SceneManager/director";
-import { clamp, damp, toWorld } from "@/systems/SceneManager/space";
-import { useStory } from "@/systems/StoryEngine/store";
+import { damp } from "@/lib/math";
+import { STAGE } from "@/systems/Experience/choreography";
+import { rt } from "@/systems/Experience/runtime";
+import { getExperience } from "@/systems/Experience/store";
 
 /**
- * LIGHT RIG — a fixed set of light slots (1 hemisphere, 1 key, 4 spots,
- * 4 points, 1 avatar fill). Worlds describe their lighting as data; the rig
- * moves the slots and fades them. Because the number of lights never
- * changes, crossing between worlds never recompiles a shader.
- * New worlds "power on": intensities ramp up after each swap.
+ * LIGHT RIG — a fixed set of lights (1 hemisphere, 1 key, 4 spots, 4 points,
+ * 1 fill on Satyam). Each has a job on the stage; intensities follow the
+ * rooms' light levels, the theme and what the set is doing. The number of
+ * lights never changes, so nothing ever recompiles a shader.
  */
 
-const SPOTS = 4;
-const POINTS = 4;
-/** Layout intensities are authored as relative values; these map them to physical units. */
-const SPOT_GAIN = 3.2;
-const POINT_GAIN = 3;
-const AMBIENT_GAIN = 2.2;
+type Spot = { pos: Vector3; target: Vector3; color: string; angle: number; penumbra: number; power: number; room: "producer" | "strategist" };
+const SPOTS: Spot[] = [
+  // 0 — Satyam's key (follows him; colour set per room)
+  { pos: new Vector3(), target: new Vector3(), color: "#ffd9b0", angle: 0.42, penumbra: 0.8, power: 120, room: "producer" },
+  // 1 — the ASTER wall
+  { pos: new Vector3(-5.2, 6.6, 2.6), target: new Vector3(-9.1, 1.5, -1.2), color: "#ffe2bf", angle: 0.5, penumbra: 0.75, power: 150, room: "producer" },
+  // 2 — the House of Purple set
+  { pos: new Vector3(1.2, 6.4, 0.6), target: STAGE.purpleSet.clone().setY(1.2), color: "#c3a8ff", angle: 0.52, penumbra: 0.7, power: 140, room: "producer" },
+  // 3 — the strategist's table
+  { pos: new Vector3(17.4, 6.6, 2.4), target: new Vector3(18.6, 0.8, -2.2), color: "#d6e4ff", angle: 0.58, penumbra: 0.85, power: 150, room: "strategist" },
+];
 
 export function LightRig({ shadows }: { shadows: boolean }) {
   const scene = useThree((s) => s.scene);
@@ -31,11 +35,10 @@ export function LightRig({ shadows }: { shadows: boolean }) {
   const fill = useRef<PointLight>(null);
   const spots = useRef<(SpotLight | null)[]>([]);
   const points = useRef<(PointLight | null)[]>([]);
-  const targets = useMemo(() => Array.from({ length: SPOTS }, () => new Object3D()), []);
+  const targets = useMemo(() => SPOTS.map(() => new Object3D()), []);
   const keyTarget = useMemo(() => new Object3D(), []);
-  const state = useRef({ scene: "", power: 0, intensities: new Float32Array(SPOTS + POINTS + 2) });
-  const tmp = useMemo(() => ({ c: new Color(), v: new Vector3() }), []);
-  const tier = useStory((s) => s.tier);
+  const tmp = useMemo(() => ({ c: new Color(), warm: new Color("#ffd9b0"), cool: new Color("#e2ecff") }), []);
+  const tier = getExperience().tier;
 
   useEffect(() => {
     targets.forEach((t) => scene.add(t));
@@ -47,98 +50,94 @@ export function LightRig({ shadows }: { shadows: boolean }) {
   }, [scene, targets, keyTarget]);
 
   useFrame((_, rawDt) => {
-    const dt = Math.min(rawDt, 0.05);
-    const sc = rt.active;
-    if (!sc) return;
-    const st = state.current;
-    const L = sc.layout;
-    const pal = L.paletteAt ? L.paletteAt(rt.avatar.u) : L.palette;
-
-    if (st.scene !== sc.id) {
-      st.scene = sc.id;
-      st.power = rt.transit ? 0 : 0.2;
-    }
-    st.power = Math.min(1, st.power + dt * 0.55);
-
-    // dim the world we are leaving while walking into the corridor
-    let dim = 1;
-    const t = rt.transit;
-    if (t?.kind === "walk" && !t.swapped) dim = clamp(1 - (t.s - (t.swapAt - 8)) / 8, 0.05, 1);
-    const intro = useStory.getState().phase === "intro" ? clamp((rt.intro.t - 3.2) / 4, 0, 1) : 1;
-    const power = st.power * st.power * (3 - 2 * st.power) * dim * intro;
+    const dt = Math.min(rawDt, 0.25);
+    const s = getExperience();
+    const setupProducer = rt.rooms.producer;
+    const setupStrategist = rt.rooms.strategist;
+    const p = rt.look.palette;
+    const day = rt.look.theme;
+    const env = rt.env;
+    const a = rt.avatar;
+    const lvl = (room: "producer" | "strategist") => (room === "producer" ? setupProducer : setupStrategist);
 
     if (hemi.current) {
-      hemi.current.color.lerp(tmp.c.set(pal.sky), 1 - Math.exp(-2 * dt));
-      hemi.current.groundColor.lerp(tmp.c.set(pal.ground), 1 - Math.exp(-2 * dt));
-      hemi.current.intensity = damp(hemi.current.intensity, pal.ambient * AMBIENT_GAIN * Math.max(0.25, power), 2, dt);
+      hemi.current.color.copy(p.sky);
+      hemi.current.groundColor.copy(p.ground);
+      hemi.current.intensity = p.ambient * 1.6 * (0.45 + 0.55 * Math.max(setupProducer, setupStrategist));
     }
 
     if (key.current) {
-      const k = L.key;
-      const ap = rt.avatar.pos;
-      tmp.v.set(k.dir[0], 0, k.dir[2]).applyAxisAngle(new Vector3(0, 1, 0), sc.anchor.yaw);
-      key.current.position.set(ap.x - tmp.v.x * 18, 18 * Math.max(0.3, -k.dir[1]), ap.z - tmp.v.z * 18);
-      keyTarget.position.set(ap.x, 0, ap.z);
+      // moonlight from the back by night, daylight from the front-right by day
+      const nx = -6 + 16 * day;
+      const nz = -10 + 22 * day;
+      key.current.position.set(rt.camera.pos.x * 0.5 + 4 + nx, 16, nz);
+      keyTarget.position.set(rt.camera.pos.x * 0.5 + 4, 0, -1);
       key.current.target = keyTarget;
-      key.current.color.lerp(tmp.c.set(k.color), 1 - Math.exp(-2 * dt));
-      key.current.intensity = damp(key.current.intensity, k.intensity * 2.4 * power, 2.5, dt);
+      key.current.color.copy(p.key);
+      key.current.intensity = p.keyIntensity * 1.4 * (0.5 + 0.5 * Math.max(setupProducer, setupStrategist));
     }
 
-    const specs = L.lightsAt ? L.lightsAt(rt.avatar.u) : L.lights;
-    const spotSpecs = specs.filter((l): l is Extract<LightSpec, { kind: "spot" }> => l.kind === "spot").slice(0, SPOTS);
-    const pointSpecs = specs.filter((l): l is Extract<LightSpec, { kind: "point" }> => l.kind === "point").slice(0, POINTS);
-
-    for (let i = 0; i < SPOTS; i++) {
+    for (let i = 0; i < SPOTS.length; i++) {
       const light = spots.current[i];
+      const spec = SPOTS[i];
       if (!light) continue;
-      const spec = spotSpecs[i];
-      if (!spec) {
-        light.intensity = damp(light.intensity, 0, 4, dt);
-        continue;
+      if (i === 0) {
+        // the key follows Satyam: from above, in front, slightly to his right
+        const f = { x: Math.sin(a.yaw), z: Math.cos(a.yaw) };
+        light.position.set(a.pos.x + f.x * 2.2 - f.z * 1.2, 5.4, a.pos.z + f.z * 2.2 + f.x * 1.2);
+        targets[0].position.set(a.pos.x, 1.1, a.pos.z);
+        light.color.copy(tmp.warm).lerp(tmp.cool, rt.look.room);
+        const level = Math.max(setupProducer * (1 - rt.look.room), setupStrategist * rt.look.room, 0.35);
+        light.intensity = damp(light.intensity, spec.power * level * p.practical, 3, dt);
+      } else {
+        light.position.copy(spec.pos);
+        targets[i].position.copy(spec.target);
+        light.color.set(spec.color);
+        light.intensity = damp(light.intensity, spec.power * lvl(spec.room) * p.practical, 2.5, dt);
       }
-      toWorld(sc.anchor, spec.pos, light.position);
-      toWorld(sc.anchor, spec.target, targets[i].position);
       light.target = targets[i];
-      light.color.set(spec.color);
-      light.angle = spec.angle ?? 0.5;
-      light.penumbra = spec.penumbra ?? 0.6;
-      light.distance = spec.distance ?? 0;
-      light.intensity = damp(light.intensity, spec.intensity * SPOT_GAIN * power, 3, dt);
-    }
-    for (let i = 0; i < POINTS; i++) {
-      const light = points.current[i];
-      if (!light) continue;
-      const spec = pointSpecs[i];
-      if (!spec) {
-        light.intensity = damp(light.intensity, 0, 4, dt);
-        continue;
-      }
-      toWorld(sc.anchor, spec.pos, light.position);
-      light.color.set(spec.color);
-      light.distance = spec.distance ?? 0;
-      light.intensity = damp(light.intensity, spec.intensity * POINT_GAIN * power, 3, dt);
+      light.angle = spec.angle;
+      light.penumbra = spec.penumbra;
     }
 
-    // a soft fill that travels with the avatar so he always reads against the dark
+    const flicker = 0.82 + 0.18 * Math.sin(rt.time * 13.1) * Math.sin(rt.time * 7.3 + 1.1);
+    const pts: [number, number, number, string, number, number][] = [
+      // x, y, z, colour, candela, range
+      [-2.2, 2.7, 0.3, "#ffcf94", 22 * setupProducer, 6],
+      [STAGE.fire.x, 1.3, STAGE.fire.z + 0.4, "#ff7a2a", 55 * env.fire * flicker, 9],
+      [24, 2.3, -0.4, "#8fb8ff", 26 * setupStrategist, 7],
+      env.strings > env.door
+        ? [0.5, 4.6, 0.2, "#ffc27a", 60 * env.strings, 14]
+        : [STAGE.door.x, 2.6, STAGE.door.z + 1.4, "#ffe6c4", 70 * env.door, 12],
+    ];
+    pts.forEach(([x, y, z, color, power, range], i) => {
+      const light = points.current[i];
+      if (!light) return;
+      light.position.set(x, y, z);
+      light.color.set(color);
+      light.distance = range;
+      light.intensity = damp(light.intensity, power * (i === 1 ? 1 : p.practical), i === 1 ? 10 : 2.5, dt);
+    });
+
+    // a soft fill that stays with Satyam so the dark suit always reads
     if (fill.current) {
-      const a = rt.avatar;
-      fill.current.position.set(a.pos.x + Math.sin(a.yaw) * 1.6, 2.4, a.pos.z + Math.cos(a.yaw) * 1.6);
-      fill.current.color.lerp(tmp.c.set(pal.accent), 1 - Math.exp(-1.5 * dt));
-      fill.current.intensity = damp(fill.current.intensity, 5 * Math.max(power, 0.3), 2, dt);
+      fill.current.position.set(rt.camera.pos.x * 0.35 + a.pos.x * 0.65, 2.3, a.pos.z + 2.2);
+      fill.current.color.copy(p.accent).lerp(tmp.cool, 0.5);
+      fill.current.intensity = damp(fill.current.intensity, (s.mode === "landing" ? 2 : 5) * (1 - day * 0.6), 2, dt);
     }
   }, -1);
 
   const shadowSize = tier === "high" ? 2048 : 1024;
   return (
     <>
-      <hemisphereLight ref={hemi} args={["#202838", "#0a0a0a", 0.2]} />
+      <hemisphereLight ref={hemi} args={["#202838", "#0a0a0a", 0.3]} />
       <directionalLight
         ref={key}
         intensity={0}
         castShadow={shadows}
         shadow-mapSize={[shadowSize, shadowSize]}
-        shadow-camera-left={-14}
-        shadow-camera-right={14}
+        shadow-camera-left={-18}
+        shadow-camera-right={18}
         shadow-camera-top={14}
         shadow-camera-bottom={-14}
         shadow-camera-near={1}
@@ -146,10 +145,10 @@ export function LightRig({ shadows }: { shadows: boolean }) {
         shadow-bias={-0.0004}
         shadow-normalBias={0.03}
       />
-      {Array.from({ length: SPOTS }, (_, i) => (
+      {SPOTS.map((_, i) => (
         <spotLight key={`s${i}`} ref={(el) => void (spots.current[i] = el)} intensity={0} decay={1.6} />
       ))}
-      {Array.from({ length: POINTS }, (_, i) => (
+      {[0, 1, 2, 3].map((i) => (
         <pointLight key={`p${i}`} ref={(el) => void (points.current[i] = el)} intensity={0} decay={1.8} />
       ))}
       <pointLight ref={fill} intensity={0} distance={7} decay={1.6} />

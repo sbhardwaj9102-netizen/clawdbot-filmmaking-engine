@@ -1,0 +1,236 @@
+/* ── full-height sheets (Quick view, Resume) ─────────── */
+.sheetWrap {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--background);
+  animation: fade 0.45s var(--ease-out) both;
+}
+.quick {
+  min-height: 100%;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: max(14px, env(safe-area-inset-top)) var(--gutter) 14px;
+  background: var(--background);
+}
+.barLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.barActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.paper {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) 60px;
+  animation: up 0.7s var(--ease-out) both;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  background: var(--surface);
+}
+.close:hover {
+  border-color: var(--accent);
+}
+
+/* ── centred card (Contact) ──────────────────────────── */
+.centerWrap {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 24px var(--gutter);
+  background: var(--overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+  animation: fade 0.35s var(--ease-out) both;
+}
+.contactCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(560px, 100%);
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-soft);
+  animation: up 0.5s var(--ease-out) both;
+}
+.contactCard .close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.kicker {
+  color: var(--accent);
+}
+.contactTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 5vw, 56px);
+  line-height: 1;
+  color: var(--text-primary);
+}
+.contactLead {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.linkItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 15px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.linkItem:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.linkItem span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.linkItem b {
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text-primary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* ── lightbox ─────────────────────────────────────────── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(56px, 8vh, 90px) clamp(16px, 6vw, 110px);
+  background: var(--overlay);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fade 0.4s var(--ease-out);
+}
+.figure {
+  display: grid;
+  gap: 10px;
+  max-width: 100%;
+  max-height: 100%;
+  animation: zoom 0.6s var(--ease-out);
+}
+.media {
+  max-width: min(100%, 1600px);
+  max-height: calc(100vh - 200px);
+  object-fit: contain;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+.figure figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.nav {
+  position: fixed;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 18px;
+}
+.nav:hover {
+  border-color: var(--accent);
+}
+.prev {
+  left: clamp(8px, 2vw, 32px);
+}
+.next {
+  right: clamp(8px, 2vw, 32px);
+}
+.lbClose {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@media (max-width: 640px) {
+  .contactCard {
+    padding: 26px 20px 20px;
+  }
+  .linkItem {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .linkItem b {
+    text-align: left;
+  }
+}

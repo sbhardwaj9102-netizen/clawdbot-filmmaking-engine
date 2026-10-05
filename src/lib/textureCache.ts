@@ -6,12 +6,11 @@ import { LinearMipmapLinearFilter, SRGBColorSpace, type Texture, TextureLoader }
 import { tex } from "./assets";
 
 /**
- * Texture cache shared by every world.
+ * Texture cache shared by both rooms.
  *
  * Textures are created synchronously (three fills them in when the image
- * arrives), so worlds never suspend. The SceneManager calls `preloadTextures`
- * when a journey toward a world begins and waits for it at the swap point,
- * which is hidden inside the corridor's fog.
+ * arrives), so nothing suspends; an image appears the moment it loads.
+ * `preloadTextures` / `texturesLoaded` are there for anything that wants to wait.
  */
 const loader = typeof window !== "undefined" ? new TextureLoader() : null;
 const cache = new Map<string, { texture: Texture; ready: Promise<void>; loaded: boolean }>();

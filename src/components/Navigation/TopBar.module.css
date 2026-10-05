@@ -1,0 +1,170 @@
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) var(--gutter) 14px;
+  background: linear-gradient(180deg, var(--scrim) 0%, var(--scrim-clear) 100%);
+  animation: in 0.9s var(--ease-out) both;
+}
+
+.name {
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 44px;
+  justify-content: center;
+  text-align: left;
+  color: var(--text-primary);
+}
+.name .serif,
+.name :global(.serif) {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.navItem {
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: background-color 0.25s, color 0.25s;
+}
+.navItem:hover {
+  color: var(--text-primary);
+}
+.navItem[aria-current="page"] {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.actions {
+  justify-self: end;
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.link {
+  min-height: 40px;
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  transition: color 0.2s, background-color 0.2s;
+}
+.link:hover {
+  color: var(--text-primary);
+  background: var(--accent-soft);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  transition: color 0.2s, background-color 0.2s;
+}
+.icon:hover {
+  color: var(--text-primary);
+  background: var(--accent-soft);
+}
+.icon[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+/* opacity only: a transform here would trap the (fixed) section bar on phones */
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1023px), (max-aspect-ratio: 4/5) {
+  .bar {
+    grid-template-columns: 1fr auto;
+  }
+  .nav {
+    position: fixed;
+    left: 50%;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 41;
+  }
+  .actions {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .role {
+    display: none;
+  }
+  .name :global(.serif) {
+    font-size: 18px;
+  }
+  .link {
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .icon {
+    width: 36px;
+    height: 36px;
+  }
+  .navItem {
+    padding: 0 11px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (max-width: 480px) {
+  .name {
+    display: none;
+  }
+  .bar {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    grid-column: 1;
+    justify-self: stretch;
+    justify-content: space-between;
+  }
+}

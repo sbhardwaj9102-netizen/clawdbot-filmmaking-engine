@@ -1,0 +1,43 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--background);
+}
+
+.art {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  object-fit: cover;
+  animation:
+    fade 1.4s var(--ease-out) both,
+    drift 24s linear both;
+}
+
+/* the strategist's room, drawn: a glass wall at dusk (by day: a bright office) */
+.room {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(14.28% - 2px), var(--border) calc(14.28% - 2px) 14.28%),
+    radial-gradient(ellipse at 60% 75%, var(--accent-soft), transparent 60%),
+    linear-gradient(180deg, var(--background-elevated), var(--background));
+  animation: fade 1.2s var(--ease-out) both;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes drift {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.06) translate(-1.5%, -1%);
+  }
+}

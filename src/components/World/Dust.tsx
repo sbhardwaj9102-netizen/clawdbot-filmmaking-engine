@@ -4,8 +4,8 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, type Points, ShaderMaterial } from "three";
 
-import { rt } from "@/systems/SceneManager/director";
-import { useStory } from "@/systems/StoryEngine/store";
+import { rt } from "@/systems/Experience/runtime";
+import { useExperience } from "@/systems/Experience/store";
 
 /**
  * Haze particles: dust drifting in the light. A box of points that wraps
@@ -46,9 +46,11 @@ const frag = /* glsl */ `
   }
 `;
 
+const white = new Color("#ffffff");
+
 export function Dust({ count }: { count: number }) {
   const ref = useRef<Points>(null);
-  const reduced = useStory((s) => s.reducedMotion);
+  const reduced = useExperience((s) => s.reducedMotion);
   const geo = useMemo(() => {
     const g = new BufferGeometry();
     const pos = new Float32Array(count * 3);
@@ -87,8 +89,9 @@ export function Dust({ count }: { count: number }) {
     mat.uniforms.uTime.value += Math.min(dt, 0.05);
     mat.uniforms.uCenter.value.copy(rt.camera.pos);
     mat.uniforms.uMotion.value = reduced ? 0 : 1;
-    const accent = rt.active?.layout.palette.accent;
-    if (accent) mat.uniforms.uColor.value.lerp(new Color(accent).lerp(new Color("#ffffff"), 0.55), 0.02);
+    // warm motes in the producer's room, cooler in the strategist's; barely there by day
+    mat.uniforms.uColor.value.copy(rt.look.palette.accent).lerp(white, 0.55);
+    mat.uniforms.uOpacity.value = 0.35 * rt.look.palette.haze;
   });
 
   return <points ref={ref} geometry={geo} material={mat} frustumCulled={false} />;

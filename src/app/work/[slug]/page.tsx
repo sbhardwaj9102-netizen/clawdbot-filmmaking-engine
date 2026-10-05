@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { getProject, projects } from "@/data/projects";
+import { profile } from "@/data/profile";
+import { getProject, projects, workOf } from "@/data/projects";
 import { asset, tex } from "@/lib/assets";
 
 import styles from "./work.module.css";
@@ -19,8 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 /**
- * A plain, shareable page per film (for links in emails and search), with the
- * way back into the film's world in the experience.
+ * A plain, shareable page per film (for links in emails and search), with a
+ * way into the film on set in the experience.
  */
 export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -29,9 +30,9 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
   return (
     <main className={styles.page}>
       <nav className={styles.bar}>
-        <a href={asset("/quick/#work")}>← All work</a>
-        <a href={asset(`/?go=${p.scene}`)} className={styles.enter}>
-          Enter {p.title.length > 16 ? "the film" : p.title}&apos;s world →
+        <a href={asset("/quick/#qv-work")}>← All work</a>
+        <a href={asset(`/#work-${workOf(p)}`)} className={styles.enter}>
+          See it on set →
         </a>
       </nav>
       <header className={styles.head}>
@@ -69,6 +70,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
           )}
         </section>
       ))}
+      {profile.assetsArePlaceholders && <p className={styles.note}>Images on this site are illustrations, not production stills.</p>}
     </main>
   );
 }

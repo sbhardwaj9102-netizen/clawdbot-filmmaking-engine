@@ -1,0 +1,165 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px var(--gutter) max(18px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, var(--scrim) 0%, var(--scrim-clear) 100%);
+  animation: in 0.8s var(--ease-out) both;
+}
+
+.where {
+  flex: 1;
+  max-width: 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.act {
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+.count {
+  color: var(--text-muted);
+}
+
+.track {
+  display: flex;
+  gap: 4px;
+}
+.track li {
+  flex-basis: 0;
+  min-width: 10px;
+}
+.track button {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 22px;
+}
+.track button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--border-strong);
+  border-radius: 2px;
+}
+.fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.track button:hover::before {
+  background: var(--text-muted);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.icon:hover {
+  border-color: var(--accent);
+}
+.main {
+  width: 52px;
+  height: 52px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.main:hover {
+  background: var(--accent-strong);
+}
+
+.exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-left: 8px;
+  padding: 0 16px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.exit:hover {
+  border-color: var(--accent);
+}
+
+.paused {
+  position: absolute;
+  right: var(--gutter);
+  bottom: calc(100% - 8px);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* opacity only: a transform here would leave the bar measuring off-screen mid-animation */
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .where {
+    max-width: none;
+  }
+  .buttons {
+    justify-content: space-between;
+  }
+  .exit span {
+    display: inline;
+  }
+}

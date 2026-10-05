@@ -2,11 +2,11 @@
 //
 //   npm run build && npm run test:e2e
 //
-// Walks the real experience: loader → intro → avatar walks → script → the three
-// branches → a film's world → media → back → about → resume → contact → Quick
-// Mode → mobile → reduced motion → keyboard, menu, continue, deep link, and
-// fails on any page error.
-// Screenshots go to ./test-results. Uses `?speed=8&quality=low` so software
+// Plays the real thing: landing → the tour (pause, skip, back, the whole film to
+// the end card) → exit → Explore (every section, galleries, lightbox) → Quick
+// view → resume → contact → sound → light/dark → deep links → static routes →
+// phone → reduced motion → no WebGL → keyboard, and fails on any page error.
+// Screenshots go to ./test-results. Uses `?quality=low&speed=12` so software
 // rendering finishes in minutes; the logic under test is the same.
 import { createReadStream, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
@@ -65,10 +65,10 @@ async function check(name, fn) {
   const t = Date.now();
   try {
     await fn();
-    results.push({ name, ok: true, ms: Date.now() - t });
+    results.push({ name, ok: true });
     console.log(`  ✓ ${name} (${((Date.now() - t) / 1000).toFixed(1)}s)`);
   } catch (e) {
-    results.push({ name, ok: false, err: String(e?.message ?? e).split("\n")[0] });
+    results.push({ name, ok: false });
     console.log(`  ✗ ${name}\n      ${String(e?.message ?? e).split("\n")[0]}`);
   }
 }
@@ -83,229 +83,282 @@ async function open(opts = {}) {
     isMobile: !!opts.mobile,
     hasTouch: !!opts.mobile,
     reducedMotion: opts.reduced ? "reduce" : "no-preference",
+    colorScheme: opts.scheme ?? "dark",
   });
+  if (opts.noWebGL) {
+    await context.addInitScript(() => {
+      const get = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+        if (/webgl/i.test(String(type))) return null;
+        return get.call(this, type, ...rest);
+      };
+    });
+  }
   const page = await context.newPage();
   page.on("pageerror", (e) => pageErrors.push(`${opts.label ?? "page"}: ${e.message}`));
   page.on("console", (m) => {
     if (m.type() === "error") pageErrors.push(`${opts.label ?? "page"} console: ${m.text()}`);
   });
-  await page.goto(`${BASE}/?quality=low&speed=8${opts.query ?? ""}`, { waitUntil: "load" });
+  await page.goto(`${BASE}/${opts.path ?? ""}?quality=low&speed=12${opts.query ?? ""}${opts.hash ?? ""}`, { waitUntil: "load" });
   return { context, page };
 }
 const S = (page) => page.evaluate(() => window.__sb.store.getState());
 const until = (page, fn, arg, timeout = 120000) => page.waitForFunction(fn, arg, { timeout, polling: 250 });
 const shot = (page, name) => page.screenshot({ path: `${SHOTS}/${name}.png` });
-async function enterExperience(page) {
-  await until(page, () => window.__sb?.store.getState().phase === "ready", null, 120000);
-  await page.getByRole("button", { name: /^Enter/ }).click();
-}
-async function walkToQuestion(page) {
-  for (let i = 0; i < 60; i++) {
-    const s = await S(page);
-    if (s.questionOpen || s.transition) return;
-    await page.mouse.move(640, 360);
-    await page.mouse.wheel(0, 400);
-    await page.waitForTimeout(350);
-  }
-  throw new Error("question never opened");
-}
+const ready = (page) => until(page, () => window.__sb?.store.getState().stageReady || window.__sb?.store.getState().webgl === false);
 
 console.log(`\nE2E against ${BASE}\n`);
 
-// ── desktop journey ─────────────────────────────────────────────
+// ── desktop: landing and the tour ───────────────────────────────
 {
   const { context, page } = await open({ label: "desktop" });
-  await check("1. site opens with the loader", async () => {
-    await page.getByRole("button", { name: /^Enter/ }).waitFor({ timeout: 30000 });
-    assert(await page.getByText("Quick mode").first().isVisible(), "quick mode shortcut missing on loader");
-  });
-  await check("2. loading completes (stage + fonts + studio prepared)", async () => {
-    await until(page, () => window.__sb?.store.getState().phase === "ready");
-    await shot(page, "01-loader");
-  });
-  await check("3. enter starts the opening", async () => {
-    await page.getByRole("button", { name: /^Enter/ }).click();
-    await until(page, () => window.__sb.store.getState().phase === "intro");
-  });
-  await check("4. avatar is in the world", async () => {
-    const has = await page.evaluate(() => !!window.__sb3?.scene.getObjectByName("avatar"));
-    assert(has, "avatar not found in scene");
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    await shot(page, "02-arrival");
-  });
-  let p0;
-  await check("5. scrolling walks the avatar", async () => {
-    p0 = (await page.evaluate(() => window.__sb.state())).pos;
-    await page.mouse.move(640, 360);
-    for (let i = 0; i < 6; i++) {
-      await page.mouse.wheel(0, 300);
-      await page.waitForTimeout(250);
+  await check("1. landing: name, role, Take the tour, Explore, sound, theme, Quick view", async () => {
+    for (const name of [/^Take the tour/, /^Explore$/, /^Sound off/, /^Switch to (light|dark) mode$/, /^Quick view$/]) {
+      assert(await page.getByRole("button", { name }).first().isVisible(), `missing ${name}`);
     }
+    assert(await page.getByRole("heading", { name: "Satyam Bhardwaj", level: 1 }).isVisible(), "name heading");
+  });
+  await check("2. the 3D stage loads (both rooms, Satyam and PA-1)", async () => {
+    await ready(page);
+    const ok = await page.evaluate(() => !!window.__sb3?.scene.getObjectByName("avatar") && !!window.__sb3?.scene.getObjectByName("robot"));
+    assert(ok, "avatar / robot missing");
+    await shot(page, "01-landing");
+  });
+  await check("3. Take the tour: the film starts with its title", async () => {
+    await page.getByRole("button", { name: /^Take the tour/ }).click();
+    await until(page, () => window.__sb.store.getState().mode === "tour");
+    await until(page, () => window.__sb.store.getState().caption >= 0);
+    assert((await S(page)).chapter === "intro", "not at intro");
+    await shot(page, "02-tour-intro");
+  });
+  await check("4. pause freezes the film, play resumes it", async () => {
+    await page.getByRole("button", { name: "Pause" }).click();
+    const a = await page.evaluate(() => window.__sb.rt.chapterT);
     await page.waitForTimeout(1500);
-    const p1 = (await page.evaluate(() => window.__sb.state())).pos;
-    assert(Math.hypot(p1[0] - p0[0], p1[2] - p0[2]) > 1, `avatar did not move (${p0} → ${p1})`);
+    const b = await page.evaluate(() => window.__sb.rt.chapterT);
+    assert(a === b && (await S(page)).paused, "clock moved while paused");
+    await page.getByRole("button", { name: "Play" }).click();
+    await until(page, (t) => window.__sb.rt.chapterT > t, b);
   });
-  await check("6. camera follows the avatar", async () => {
-    const st = await page.evaluate(() => window.__sb.state());
-    const d = Math.hypot(st.cam[0] - st.pos[0], st.cam[2] - st.pos[2]);
-    assert(d < 9 && d > 1.5, `camera ${d.toFixed(1)}m from avatar`);
+  await check("5. skip and back move one chapter", async () => {
+    const before = (await S(page)).chapter;
+    await page.getByRole("button", { name: "Skip to the next part" }).click();
+    await until(page, (c) => window.__sb.store.getState().chapter !== c, before);
+    const after = (await S(page)).chapter;
+    await page.getByRole("button", { name: "Previous part" }).click();
+    await until(page, (c) => window.__sb.store.getState().chapter !== c, after);
   });
-  await check("7. the script moment plays and the question opens", async () => {
-    await walkToQuestion(page);
+  await check("6. the whole film plays to the end card: 11 chapters, PA-1 speaks 8–12 times", async () => {
+    await page.evaluate(() => {
+      window.__seen = new Set([window.__sb.store.getState().chapter]);
+      window.__lines = new Set();
+      window.__sb.store.subscribe((s) => {
+        window.__seen.add(s.chapter);
+        if (s.robotLine) window.__lines.add(s.robotLine.text);
+      });
+      window.__sb.tour.start(0);
+    });
+    await until(page, () => window.__sb.store.getState().ended, null, 400000);
+    const { seen, lines } = await page.evaluate(() => ({ seen: [...window.__seen], lines: [...window.__lines] }));
+    assert(seen.length === 11, `chapters seen: ${seen.join(",")}`);
+    assert(lines.length >= 8 && lines.length <= 12, `PA-1 lines: ${lines.length}`);
+    await page.waitForTimeout(1500);
+    await shot(page, "03-end-card");
+  });
+  await check("7. end card: Download resume, Contact Satyam, View work, Watch again", async () => {
+    const href = await page.locator('[data-action="download-resume"]').getAttribute("href");
+    const res = await page.request.get(BASE + href);
+    assert(res.ok() && res.headers()["content-type"].includes("pdf"), "resume PDF");
+    await page.locator('[data-action="contact-satyam"]').click();
+    await until(page, () => window.__sb.store.getState().overlay === "contact");
+    await page.keyboard.press("Escape");
+    await until(page, () => window.__sb.store.getState().overlay === null);
+    await page.locator('[data-action="view-work"]').click();
+    await until(page, () => window.__sb.store.getState().mode === "explore" && window.__sb.store.getState().section === "work");
+  });
+  await check("8. exit the tour at any point → Explore, at the matching section", async () => {
+    await page.evaluate(() => window.__sb.tour.start(0));
+    await page.evaluate(() => window.__sb.tour.goTo("purple"));
+    await page.getByRole("button", { name: /Exit tour/ }).click();
+    await until(page, () => window.__sb.store.getState().mode === "explore");
     const s = await S(page);
-    assert(s.worldEvents["script-glow"] && s.worldEvents["reveal-choices"], "script beats did not fire");
-    await page.waitForTimeout(1200);
-    await shot(page, "03-question");
+    assert(s.section === "work" && s.work === "purple", `landed at ${s.section}/${s.work}`);
+    assert((await page.evaluate(() => location.hash)) === "#work-purple", "hash");
   });
-  await check("8. choices are presented in the world (MAKE / FINANCE / BUILD)", async () => {
-    for (const id of ["make", "finance", "build"]) assert(await page.locator(`button[data-choice="${id}"]`).count(), `choice ${id} missing`);
+  await check("9. Explore: About · Work · Strategy · Contact, project tabs", async () => {
+    for (const [section, heading] of [
+      ["about", "Satyam Bhardwaj"],
+      ["work", null],
+      ["strategy", "Why finance"],
+      ["contact", "Let's talk."],
+    ]) {
+      await page.locator(`[data-section="${section}"]`).click();
+      await until(page, (s) => window.__sb.store.getState().section === s, section);
+      if (heading) assert(await page.locator("#explore-title").textContent() === heading, `${section} heading`);
+    }
+    await page.locator('[data-section="work"]').click();
+    for (const [id, title] of [
+      ["aster", "ASTER"],
+      ["purple", "Death at the House of Purple"],
+      ["live", "Weddings and live events"],
+      ["more", "RANA · GLUTTONY"],
+    ]) {
+      await page.locator(`[data-work="${id}"]`).click();
+      await until(page, (w) => window.__sb.store.getState().work === w, id);
+      assert((await page.locator("#explore-title").textContent()) === title, `${id} title`);
+    }
+    await shot(page, "04-explore-work");
   });
-  await check("9. MAKE IT → film world via the corridor", async () => {
-    await page.locator('button[data-choice="make"]').click({ force: true });
-    await until(page, () => !!window.__sb.store.getState().corridor);
-    await page.waitForTimeout(800);
-    await shot(page, "04-corridor");
-    await until(page, () => window.__sb.store.getState().currentScene === "film" && !window.__sb.store.getState().transition);
-    await page.waitForTimeout(800);
-    await shot(page, "05-film");
-  });
-  await check("12. a film's monitor dives into its world (ASTER)", async () => {
-    await page.evaluate(() => window.__sb.engine.openHotspot("monitor-aster"));
-    await until(page, () => !!window.__sb.store.getState().dive);
-    await until(page, () => window.__sb.store.getState().currentScene === "aster" && !window.__sb.store.getState().transition);
-    await page.waitForTimeout(1000);
-    await shot(page, "06-aster");
-    const s = await S(page);
-    assert(s.selectedProjects.includes("aster"), "selectedProjects not recorded");
-  });
-  await check("13. project media opens (stills → lightbox)", async () => {
-    await page.evaluate(() => window.__sb.engine.openHotspot("aster-stills"));
-    await until(page, () => window.__sb.store.getState().hotspot?.status === "open");
-    await page.locator('aside[role="dialog"] ul li button').first().click();
+  await check("10. galleries open in the lightbox; Esc closes it", async () => {
+    await page.locator('[data-work="aster"]').click();
+    await page.getByRole("button", { name: /^View image/ }).first().click();
     await until(page, () => !!window.__sb.store.getState().lightbox);
-    await shot(page, "07-lightbox");
+    await page.keyboard.press("ArrowRight");
+    await until(page, () => window.__sb.store.getState().lightbox?.index === 1);
     await page.keyboard.press("Escape");
     await until(page, () => !window.__sb.store.getState().lightbox);
-    await page.keyboard.press("Escape");
-    await until(page, () => !window.__sb.store.getState().hotspot);
   });
-  await check("14. back returns to the film set, at the monitor", async () => {
-    await page.getByRole("button", { name: "← Back" }).click();
-    await until(page, () => window.__sb.store.getState().currentScene === "film" && !window.__sb.store.getState().transition);
-  });
-  await check("15. about works", async () => {
-    await page.evaluate(() => window.__sb.engine.jump("about"));
-    await until(page, () => window.__sb.store.getState().currentScene === "about" && !window.__sb.store.getState().transition);
-    await page.evaluate(() => window.__sb.engine.openHotspot("about-screen"));
-    await until(page, () => window.__sb.store.getState().hotspot?.status === "open");
-    assert(await page.getByRole("heading", { name: "Satyam Bhardwaj" }).count(), "about panel missing name");
-    await shot(page, "08-about");
-    await page.keyboard.press("Escape");
-  });
-  await check("16. resume opens from the desk, PDF downloadable", async () => {
-    await page.evaluate(() => window.__sb.engine.openHotspot("about-resume"));
-    await until(page, () => window.__sb.store.getState().overlay === "resume");
-    await shot(page, "09-resume");
-    const href = await page.locator('a[download]').first().getAttribute("href");
-    const res = await page.request.get(`${BASE}${href}`);
-    assert(res.status() === 200 && (res.headers()["content-type"] ?? "").includes("pdf"), `resume PDF ${res.status()}`);
-    await page.keyboard.press("Escape");
-  });
-  await check("17a. Contact button opens the contact card: email copies, WhatsApp opens a chat", async () => {
-    await page.locator('button[data-shortcut="contact"]').click();
-    await until(page, () => window.__sb.store.getState().contactOpen);
-    const card = page.locator('section[role="dialog"]');
-    const wa = await card.locator('a[data-contact="whatsapp"]').getAttribute("href");
-    assert(wa?.startsWith("https://wa.me/") && (await card.locator('a[data-contact="whatsapp"]').getAttribute("target")) === "_blank", `whatsapp link ${wa}`);
-    assert((await card.locator('a[data-contact="email"]').getAttribute("href"))?.startsWith("mailto:"), "email link");
-    await card.locator('a[data-contact="email"]').click();
-    await card.getByText(/Copied/).waitFor({ timeout: 10000 });
-    const clip = await page.evaluate(() => navigator.clipboard.readText().catch(() => ""));
-    assert(clip.includes("@"), `clipboard has "${clip}"`);
-    await shot(page, "09b-contact-button");
-    await card.getByRole("button", { name: "Back to the story" }).click();
-    await until(page, () => !window.__sb.store.getState().contactOpen);
-  });
-  await check("17. contact: the final door → contact card", async () => {
-    await page.evaluate(() => window.__sb.engine.jump("final"));
-    await until(page, () => window.__sb.store.getState().contactOpen, null, 180000);
-    await page.waitForTimeout(3000);
-    await shot(page, "10-contact");
-    const mail = await page.locator('section[role="dialog"] a[href^="mailto:"]').getAttribute("href");
-    assert(mail?.includes("@"), "no email link");
-    assert(await page.locator('section[role="dialog"] a[data-contact="whatsapp"]').count(), "no WhatsApp link");
-  });
-  await check("18. Quick Mode opens over the experience", async () => {
-    // from the contact card (the control bar steps aside while it is up)
-    await page.locator('section[role="dialog"]').getByRole("button", { name: "Quick mode" }).click();
+  await check("11. Quick view: About, Selected work, Resume, Skills, Education, Contact", async () => {
+    await page.locator('[data-action="quick"]').click();
     await until(page, () => window.__sb.store.getState().overlay === "quick");
-    for (const id of ["work", "experience", "capabilities", "about", "resume", "contact"]) assert(await page.locator(`#${id}`).count(), `section #${id} missing`);
-    await shot(page, "11-quick");
+    for (const id of ["qv-about", "qv-work", "qv-resume", "qv-skills", "qv-education", "qv-contact"]) assert(await page.locator(`#${id}`).count(), `#${id}`);
+    await shot(page, "05-quick-view");
+    await page.getByRole("button", { name: "See it on set" }).nth(1).click();
+    await until(page, () => window.__sb.store.getState().overlay === null && window.__sb.store.getState().work === "purple");
+  });
+  await check("12. Resume: the document, PDF one click away; Esc closes", async () => {
+    await page.locator('[data-action="resume"]').click();
+    await until(page, () => window.__sb.store.getState().overlay === "resume");
+    assert(await page.getByRole("heading", { name: "Experience" }).isVisible(), "resume content");
+    const href = await page.locator('[data-action="resume-pdf"]').getAttribute("href");
+    assert((await page.request.get(BASE + href)).ok(), "PDF");
+    await page.keyboard.press("Escape");
+    await until(page, () => window.__sb.store.getState().overlay === null);
+  });
+  await check("13. Contact: email copies, WhatsApp opens a chat, phone dials", async () => {
+    await page.locator('[data-action="contact"]').click();
+    const dialog = page.getByRole("dialog", { name: "Contact Satyam" });
+    await dialog.waitFor();
+    await dialog.locator('[data-contact="email"]').evaluate((a) => a.addEventListener("click", (e) => e.preventDefault(), { once: true }));
+    await dialog.locator('[data-contact="email"]').click();
+    await page.waitForTimeout(300);
+    assert((await page.evaluate(() => navigator.clipboard.readText())) === "mrbhardwaj2207@gmail.com", "email not copied");
+    const wa = await dialog.locator('[data-contact="whatsapp"]').getAttribute("href");
+    assert(/^https:\/\/wa\.me\/919102458875/.test(wa ?? ""), "WhatsApp link");
+    assert((await dialog.locator('[data-contact="phone"]').getAttribute("href")) === "tel:+919102458875", "phone link");
+    await page.keyboard.press("Escape");
+  });
+  await check("14. sound on/off (off by default, starts only on a click)", async () => {
+    assert((await S(page)).sound === false, "sound on by default");
+    await page.locator('header [data-action="sound"]').click();
+    assert((await S(page)).sound === true, "sound did not turn on");
+    await page.waitForTimeout(800);
+    await page.locator('header [data-action="sound"]').click();
+    assert((await S(page)).sound === false, "sound did not turn off");
+  });
+  await check("15. light / dark: switches, and is remembered after a reload", async () => {
+    const before = await page.evaluate(() => document.documentElement.dataset.theme);
+    await page.locator('header [data-action="theme"]').click();
+    const after = await page.evaluate(() => document.documentElement.dataset.theme);
+    assert(before !== after, "theme did not switch");
+    await shot(page, "06-light");
+    await page.reload({ waitUntil: "load" });
+    assert((await page.evaluate(() => document.documentElement.dataset.theme)) === after, "theme not remembered");
+    await page.evaluate(() => localStorage.removeItem("sb.theme"));
+  });
+  await check("16. PA-1's lines can be dismissed", async () => {
+    await ready(page);
+    await page.evaluate(() => window.__sb.tour.start(0));
+    // at test speed a line is only up for a moment: hold the tour while one is showing
+    let held = false;
+    for (let k = 0; k < 4 && !held; k++) {
+      await until(page, () => !!window.__sb.store.getState().robotLine, null, 60000);
+      await page.evaluate(() => window.__sb.tour.pause());
+      held = !!(await S(page)).robotLine;
+      if (!held) await page.evaluate(() => window.__sb.tour.resume());
+    }
+    assert(held, "never caught a line on screen");
+    // a plain mouse click on the button (the locator's actionability wait trips over software-rendered frames)
+    const box = await page.evaluate(() => {
+      const r = document.querySelector('[data-action="skip-line"]')?.getBoundingClientRect();
+      return r && r.width ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
+    });
+    assert(box, `no skip button (${JSON.stringify(await page.evaluate(() => window.__sb.state()))})`);
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    assert(!(await S(page)).robotLine, "line still up");
+    await page.evaluate(() => window.__sb.tour.resume());
+  });
+  await check("17. keyboard: Space pauses, → skips, Esc exits the tour", async () => {
+    await page.evaluate(() => window.__sb.store.getState().mode === "tour" || window.__sb.tour.start(0));
+    await page.evaluate(() => window.__sb.tour.resume());
+    await page.locator("body").click({ position: { x: 900, y: 360 } });
+    await page.keyboard.press("Space");
+    assert((await S(page)).paused, "Space did not pause");
+    await page.keyboard.press("Space");
+    const c = (await S(page)).chapter;
+    await page.keyboard.press("ArrowRight");
+    await until(page, (c) => window.__sb.store.getState().chapter !== c, c);
+    await page.keyboard.press("Escape");
+    await until(page, () => window.__sb.store.getState().mode === "explore");
   });
   await context.close();
 }
 
-// ── the other two branches ──────────────────────────────────────
-for (const [option, scene, n] of [
-  ["finance", "finance", "10"],
-  ["build", "business", "11"],
-]) {
-  const { context, page } = await open({ label: option });
-  await check(`${n}. ${option.toUpperCase()} IT → ${scene} world`, async () => {
-    await enterExperience(page);
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    await walkToQuestion(page);
-    await page.locator(`button[data-choice="${option}"]`).click({ force: true });
-    await until(page, (sc) => window.__sb.store.getState().currentScene === sc && !window.__sb.store.getState().transition, scene);
-    await page.waitForTimeout(1000);
-    await shot(page, `12-${scene}`);
-  });
-  await context.close();
-}
-
-// ── static pages ────────────────────────────────────────────────
+// ── deep links and static routes ────────────────────────────────
+await check("18. deep links: #strategy, #work-live, ?go=rana, #tour", async () => {
+  for (const [opts, expect] of [
+    [{ hash: "#strategy" }, (s) => s.mode === "explore" && s.section === "strategy"],
+    [{ hash: "#work-live" }, (s) => s.mode === "explore" && s.work === "live"],
+    [{ query: "&go=rana" }, (s) => s.mode === "explore" && s.work === "more"],
+    [{ hash: "#tour" }, (s) => s.mode === "tour"],
+  ]) {
+    const { context, page } = await open({ label: "deeplink", ...opts });
+    await until(page, () => !!window.__sb);
+    const s = await S(page);
+    assert(expect(s), `${JSON.stringify(opts)} → ${s.mode}/${s.section}/${s.work}`);
+    await context.close();
+  }
+});
 {
-  const { context, page } = await open({ label: "static" });
-  await check("18b. /quick and /resume pages render", async () => {
-    await page.goto(`${BASE}/quick/`);
-    assert(await page.getByRole("heading", { name: "Satyam Bhardwaj", level: 1 }).count(), "quick page heading");
-    await page.goto(`${BASE}/resume/`);
-    assert(await page.getByRole("heading", { name: "Experience" }).count(), "resume page");
-    await page.goto(`${BASE}/work/aster/`);
-    assert(await page.getByRole("heading", { name: "ASTER" }).count(), "work page");
+  const { context, page } = await open({ label: "static", path: "quick/" });
+  await check("19. /quick/, /resume/ and every /work/ page render; their links resolve", async () => {
+    for (const [path, heading] of [
+      ["/quick/", "Satyam Bhardwaj"],
+      ["/resume/", "Satyam Bhardwaj"],
+      ["/work/aster/", "ASTER"],
+      ["/work/death-at-the-house-of-purple/", "DEATH AT THE HOUSE OF PURPLE"],
+      ["/work/rana/", "RANA"],
+      ["/work/gluttony/", "GLUTTONY"],
+    ]) {
+      await page.goto(BASE + path);
+      assert(await page.getByRole("heading", { name: heading, level: 1 }).count(), `${path} heading`);
+      const hrefs = await page.$$eval("a[href^='/']", (as) => as.map((a) => a.getAttribute("href")));
+      for (const h of new Set(hrefs)) {
+        const url = h.split("#")[0];
+        if (!url) continue;
+        assert((await page.request.get(BASE + url)).ok(), `${path} → broken link ${h}`);
+      }
+    }
   });
   await context.close();
 }
 
-// ── mobile ──────────────────────────────────────────────────────
+// ── phone ───────────────────────────────────────────────────────
 {
   const { context, page } = await open({ label: "mobile", mobile: true, viewport: { width: 390, height: 844 } });
-  await check("19. mobile: enter, swipe to walk, choose with large buttons", async () => {
-    await enterExperience(page);
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    const p0 = (await page.evaluate(() => window.__sb.state())).pos;
-    for (let i = 0; i < 30; i++) {
-      const s = await S(page);
-      if (s.questionOpen) break;
-      await page.evaluate(() => {
-        const t = (y) => new Touch({ identifier: 1, target: document.body, clientX: 195, clientY: y });
-        document.body.dispatchEvent(new TouchEvent("touchstart", { touches: [t(700)], bubbles: true }));
-        for (let y = 700; y >= 200; y -= 50) window.dispatchEvent(new TouchEvent("touchmove", { touches: [t(y)], bubbles: true, cancelable: true }));
-        window.dispatchEvent(new TouchEvent("touchend", { touches: [], bubbles: true }));
-      });
-      await page.waitForTimeout(500);
-    }
-    const p1 = (await page.evaluate(() => window.__sb.state())).pos;
-    assert(Math.hypot(p1[0] - p0[0], p1[2] - p0[2]) > 1, "swipe did not walk");
-    await until(page, () => window.__sb.store.getState().questionOpen);
-    await page.waitForTimeout(1000);
-    await shot(page, "13-mobile-question");
-    const btn = page.locator('button[data-option="make"]');
-    assert(await btn.isVisible(), "mobile choice buttons not visible");
-    await btn.click();
-    await until(page, () => window.__sb.store.getState().currentScene === "film");
-    await page.waitForTimeout(1500);
-    await shot(page, "14-mobile-film");
+  await check("20. phone: the tour and Explore are laid out for a small screen", async () => {
+    await ready(page);
+    await page.getByRole("button", { name: /^Take the tour/ }).tap();
+    await until(page, () => window.__sb.store.getState().caption >= 0);
+    const ctl = await page.getByRole("group", { name: "Tour controls" }).boundingBox();
+    assert(ctl && ctl.y + ctl.height <= 844 && ctl.width <= 390, "controls off screen");
+    await page.getByRole("button", { name: /Exit tour/ }).tap();
+    await until(page, () => window.__sb.store.getState().mode === "explore");
+    const nav = await page.getByRole("navigation", { name: "Sections" }).boundingBox();
+    assert(nav && nav.y > 844 * 0.8, "section bar should sit at the bottom on a phone");
+    const width = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert(width <= 390, `page scrolls sideways (${width}px)`);
+    await shot(page, "07-mobile-explore");
   });
   await context.close();
 }
@@ -313,82 +366,49 @@ for (const [option, scene, n] of [
 // ── reduced motion ──────────────────────────────────────────────
 {
   const { context, page } = await open({ label: "reduced", reduced: true });
-  await check("20. reduced motion: preference detected, travel becomes a cut", async () => {
-    await enterExperience(page);
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    assert((await S(page)).reducedMotion, "reducedMotion not set");
-    await walkToQuestion(page);
-    await page.evaluate(() => window.__sb.engine.choose("after-story", "finance"));
-    await until(page, () => window.__sb.store.getState().transition);
-    const kind = (await S(page)).transition.kind;
-    assert(kind === "cut", `transition was ${kind}`);
-    await until(page, () => window.__sb.store.getState().currentScene === "finance" && !window.__sb.store.getState().transition);
+  await check("21. reduced motion: detected; camera moves become cuts", async () => {
+    await ready(page);
+    assert((await S(page)).reducedMotion, "not detected");
+    await page.getByRole("button", { name: /^Take the tour/ }).click();
+    await until(page, () => window.__sb.store.getState().mode === "tour");
+    await page.evaluate(() => window.__sb.tour.next());
+    assert((await page.evaluate(() => window.__sb.rt.shot.blend)) === 0, "camera still moving");
   });
   await context.close();
 }
 
-// ── keyboard, menu, returning visitor, deep link ────────────────
+// ── no WebGL ────────────────────────────────────────────────────
 {
-  const { context, page } = await open({ label: "returning" });
-  await check("20b. keyboard: ↓ walks, Tab reaches the objects, Esc closes", async () => {
-    await enterExperience(page);
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    const u0 = (await page.evaluate(() => window.__sb.state())).u;
-    await page.keyboard.down("ArrowDown");
-    await page.waitForTimeout(1200);
-    await page.keyboard.up("ArrowDown");
-    await page.waitForTimeout(400);
-    assert((await page.evaluate(() => window.__sb.state())).u > u0, "ArrowDown did not walk");
-    let inList = false;
-    for (let i = 0; i < 30 && !inList; i++) {
-      await page.keyboard.press("Tab");
-      inList = await page.evaluate(() => !!document.activeElement?.closest('nav[aria-label="Objects in this space"]'));
+  const { context, page } = await open({ label: "nowebgl", noWebGL: true });
+  await check("22. without WebGL the story still plays over still images", async () => {
+    await until(page, () => window.__sb?.store.getState().webgl === false);
+    await page.getByRole("button", { name: /^Take the tour/ }).click();
+    await until(page, () => window.__sb.store.getState().chapter === "who", null, 60000);
+    await page.getByRole("button", { name: /Exit tour/ }).click();
+    await until(page, () => window.__sb.store.getState().mode === "explore");
+    await shot(page, "08-no-webgl");
+  });
+  await context.close();
+}
+
+// ── keyboard from a cold start ──────────────────────────────────
+{
+  const { context, page } = await open({ label: "keyboard" });
+  await check("23. keyboard only: Tab reaches the choices; Enter starts the tour", async () => {
+    await ready(page);
+    let found = false;
+    for (let i = 0; i < 8 && !found; i++) {
+      found = await page.evaluate(() => document.activeElement?.getAttribute("data-action") === "tour");
+      if (!found) await page.keyboard.press("Tab");
     }
-    assert(inList, "Tab never reached the object list");
+    assert(found, "Take the tour never received focus");
     await page.keyboard.press("Enter");
-    await until(page, () => !!window.__sb.store.getState().hotspot);
-    for (let i = 0; i < 3; i++) {
-      const s = await S(page);
-      if (!s.hotspot && !s.overlay) break;
-      await page.keyboard.press("Escape");
-      await page.waitForTimeout(400);
-    }
-    const s = await S(page);
-    assert(!s.hotspot && !s.overlay, "Esc did not close the object");
-  });
-  await check("20c. Menu jumps to a world", async () => {
-    await page.getByRole("button", { name: "Menu" }).click();
-    await page.getByRole("dialog", { name: "Menu" }).getByRole("button", { name: /^Finance/ }).click();
-    await until(page, () => window.__sb.store.getState().currentScene === "finance" && !window.__sb.store.getState().transition);
-  });
-  await check("20d. a returning visitor continues where they left off", async () => {
-    await page.waitForTimeout(500);
-    await page.reload({ waitUntil: "load" });
-    const cont = page.getByRole("button", { name: /^Continue where you left off/ });
-    await cont.waitFor({ timeout: 60000 });
-    await until(page, () => window.__sb?.store.getState().phase === "ready");
-    await cont.click();
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    const s = await S(page);
-    assert(s.currentScene === "finance", `continued at ${s.currentScene}`);
-    assert(s.visitedScenes.includes("finance"), "visited scenes not restored");
-  });
-  await context.close();
-}
-{
-  const { context, page } = await open({ label: "deeplink", query: "&go=rana" });
-  await check("20e. a deep link (/?go=rana) enters at that film", async () => {
-    await until(page, () => window.__sb?.store.getState().phase === "ready");
-    await page.getByRole("button", { name: "Enter at RANA" }).click();
-    await until(page, () => window.__sb.store.getState().phase === "explore");
-    assert((await S(page)).currentScene === "rana", "not in RANA");
-    await page.waitForTimeout(1200);
-    await shot(page, "15-deeplink-rana");
+    await until(page, () => window.__sb.store.getState().mode === "tour");
   });
   await context.close();
 }
 
-await check("21. no page errors", async () => {
+await check("24. no page errors", async () => {
   assert(pageErrors.length === 0, pageErrors.slice(0, 5).join(" | "));
 });
 

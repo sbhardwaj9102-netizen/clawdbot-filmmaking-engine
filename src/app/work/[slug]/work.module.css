@@ -13,15 +13,19 @@
   font-size: 10.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--white-dim);
+  color: var(--text-secondary);
+}
+
+.bar a {
+  padding: 8px 0;
 }
 
 .bar a:hover {
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .enter {
-  color: var(--amber);
+  color: var(--accent);
 }
 
 .head {
@@ -34,7 +38,7 @@
   font-size: 10.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--white-dim);
+  color: var(--text-secondary);
 }
 
 .title {
@@ -48,18 +52,19 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  border-radius: var(--radius);
 }
 
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   margin-top: 2rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border);
 }
 
 .facts div {
   padding: 1rem 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
 }
 
 .facts dt {
@@ -67,7 +72,7 @@
   font-size: 9.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--white-faint);
+  color: var(--text-muted);
 }
 
 .facts dd {
@@ -88,7 +93,7 @@
 
 .section p {
   max-width: 60ch;
-  color: rgba(236, 230, 218, 0.86);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -103,4 +108,11 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  border-radius: 8px;
+}
+
+.note {
+  margin-top: 3rem;
+  font-size: 13px;
+  color: var(--text-muted);
 }

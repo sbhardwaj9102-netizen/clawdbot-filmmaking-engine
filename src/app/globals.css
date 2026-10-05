@@ -1,34 +1,78 @@
 /* ------------------------------------------------------------------
-   Design tokens — black · charcoal · deep navy · warm amber · muted gold · soft white
+   DESIGN TOKENS
+   Semantic colours only — components never name a raw colour. Dark is the
+   night studio (charcoal, warm amber); light is the same studio by day
+   (warm paper, ink, a deeper amber that holds AA contrast on paper).
    ------------------------------------------------------------------ */
+:root,
+:root[data-theme="dark"] {
+  --background: #0a0a0c;
+  --background-elevated: #111114;
+  --surface: rgba(18, 18, 21, 0.76);
+  --surface-strong: rgba(18, 18, 21, 0.94);
+  --surface-solid: #141417;
+  --text-primary: #f2ede3;
+  --text-secondary: #d0c9bb;
+  --text-muted: #a8a194;
+  --accent: #e8a964;
+  --accent-strong: #f3bd7c;
+  --accent-contrast: #1a1207;
+  --accent-soft: rgba(232, 169, 100, 0.14);
+  --cool: #9cc0ff;
+  --border: rgba(242, 237, 227, 0.16);
+  --border-strong: rgba(242, 237, 227, 0.32);
+  --overlay: rgba(7, 7, 9, 0.84);
+  --scrim: rgba(8, 8, 10, 0.88);
+  --scrim-clear: rgba(8, 8, 10, 0);
+  --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.38);
+  --focus: #f3bd7c;
+  --grain-opacity: 0.06;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --background: #f3efe7;
+  --background-elevated: #fbf8f2;
+  --surface: rgba(251, 248, 242, 0.86);
+  --surface-strong: rgba(251, 248, 242, 0.97);
+  --surface-solid: #fbf8f2;
+  --text-primary: #17140f;
+  --text-secondary: #3b352b;
+  --text-muted: #5a5346;
+  --accent: #9a5414;
+  --accent-strong: #7d420c;
+  --accent-contrast: #fffaf2;
+  --accent-soft: rgba(154, 84, 20, 0.1);
+  --cool: #2c5a96;
+  --border: rgba(23, 20, 15, 0.14);
+  --border-strong: rgba(23, 20, 15, 0.32);
+  --overlay: rgba(243, 239, 231, 0.92);
+  --scrim: rgba(246, 242, 234, 0.92);
+  --scrim-clear: rgba(246, 242, 234, 0);
+  --shadow-soft: 0 12px 34px rgba(60, 45, 20, 0.14);
+  --focus: #9a5414;
+  --grain-opacity: 0.035;
+  color-scheme: light;
+}
+
 :root {
-  --black: #050506;
-  --charcoal: #121316;
-  --charcoal-2: #1a1b1f;
-  --navy: #0c1424;
-  --amber: #e2a25e;
-  --gold: #b8955a;
-  --white: #ece6da;
-  --white-dim: rgba(236, 230, 218, 0.62);
-  --white-faint: rgba(236, 230, 218, 0.34);
-  --line: rgba(236, 230, 218, 0.14);
-  --line-strong: rgba(236, 230, 218, 0.26);
-  --glass: rgba(10, 10, 12, 0.62);
-
-  --paper: #efe9dd;
-  --paper-ink: #141414;
-  --paper-dim: rgba(20, 20, 20, 0.58);
-  --paper-line: rgba(20, 20, 20, 0.14);
-
   --font-serif: "Instrument Serif", "Times New Roman", serif;
   --font-sans: "Archivo Variable", "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
+  /* type scale */
+  --t-display: clamp(52px, 7.4vw, 112px);
+  --t-statement: clamp(40px, 6vw, 92px);
+  --t-title: clamp(32px, 3.8vw, 56px);
+  --t-lead: clamp(17px, 1.35vw, 20px);
+  --t-body: 16px;
+  --t-small: 14px;
+  --t-label: 11px;
+
   --gutter: clamp(16px, 3.2vw, 44px);
+  --radius: 14px;
   --ease: cubic-bezier(0.76, 0, 0.24, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-  color-scheme: dark;
 }
 
 *,
@@ -38,19 +82,21 @@
 }
 
 html {
-  background: var(--black);
-  color: var(--white);
+  background: var(--background);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
+  transition: background-color 0.5s var(--ease-out), color 0.5s var(--ease-out);
 }
 
 body {
   margin: 0;
-  background: var(--black);
+  background: var(--background);
+  color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--t-body);
   line-height: 1.5;
   overflow-x: clip;
 }
@@ -69,6 +115,12 @@ dd {
   padding: 0;
   font-weight: inherit;
   font-size: inherit;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
 ul,
@@ -97,13 +149,14 @@ video {
 }
 
 ::selection {
-  background: var(--amber);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--accent-contrast);
 }
 
 :focus-visible {
-  outline: 1px solid var(--amber);
-  outline-offset: 4px;
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* the experience owns the viewport */
@@ -117,22 +170,17 @@ html.experience body {
 .stage {
   position: fixed;
   inset: 0;
-  touch-action: none;
-}
-
-html.has-cursor .stage,
-html.has-cursor .stage * {
-  cursor: none;
+  touch-action: manipulation;
 }
 
 /* ------------------------------------------------------------------
-   Shared type
+   Shared type and controls
    ------------------------------------------------------------------ */
-.mono {
+.label {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.2em;
   line-height: 1.6;
   text-transform: uppercase;
 }
@@ -141,6 +189,66 @@ html.has-cursor .stage * {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.005em;
+}
+
+/* Buttons used across the site */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 44px;
+  padding: 0.7em 1.35em;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background-color 0.25s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+.btn:hover {
+  border-color: var(--accent);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.btn-primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.btn-quiet {
+  min-height: 36px;
+  padding: 0.5em 0.9em;
+  border-color: transparent;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--text-secondary);
+}
+.btn-quiet:hover {
+  color: var(--text-primary);
+  border-color: var(--border);
 }
 
 .sr-only {
@@ -160,9 +268,11 @@ html.has-cursor .stage * {
   top: 10px;
   left: 10px;
   z-index: 999;
-  padding: 0.6rem 1rem;
-  background: var(--white);
-  color: var(--black);
+  padding: 0.7rem 1rem;
+  background: var(--surface-solid);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -173,13 +283,13 @@ html.has-cursor .stage * {
   transform: none;
 }
 
-/* film grain + lens falloff over the experience (cheap, every tier) */
+/* film grain over the experience (cheap, every tier) */
 .grain {
   position: fixed;
   inset: -50%;
   z-index: 15;
   pointer-events: none;
-  opacity: 0.07;
+  opacity: var(--grain-opacity);
   background-image: url("/assets/site/grain.png");
   animation: grain 0.9s steps(6) infinite;
 }

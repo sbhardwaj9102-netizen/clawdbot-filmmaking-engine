@@ -16,9 +16,9 @@ export default function ResumePage() {
   return (
     <main className={styles.page}>
       <nav className={styles.bar} aria-label="Resume actions">
-        <a href={asset("/")}>← The experience</a>
+        <a href={asset("/")}>← The 2-minute film</a>
         <div>
-          <a href={asset("/quick/")}>Quick mode</a>
+          <a href={asset("/quick/")}>Quick view</a>
           <a href={asset(profile.resumePdf)} download className={styles.download}>
             Download PDF
           </a>

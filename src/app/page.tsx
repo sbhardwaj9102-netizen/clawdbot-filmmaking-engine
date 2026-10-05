@@ -5,8 +5,8 @@ import { asset } from "@/lib/assets";
 import { emailHref, whatsappHref } from "@/lib/contact";
 
 /**
- * Home: the interactive film. The static HTML carries a readable summary and
- * links for crawlers, no-JS visitors and screen readers; the 3D experience
+ * Home: the two-minute film. The static HTML carries a readable summary and
+ * links for crawlers, no-JS visitors and screen readers; the experience
  * mounts on top of it on the client. Plain links: nothing here should be
  * prefetched while the studio loads.
  */
@@ -14,12 +14,13 @@ export default function Home() {
   return (
     <>
       <a className="skip" href={asset("/quick/")}>
-        Skip to Quick Mode — the whole portfolio on one page
+        Skip to Quick view — the whole portfolio on one page
       </a>
       <main id="main" className="sr-only">
-        <h1>
-          {profile.name} — {profile.title}
-        </h1>
+        {/* the page's h1 is the landing title */}
+        <h2>
+          About {profile.name} — {profile.title}
+        </h2>
         <p>{profile.summary}</p>
         <h2>Work</h2>
         <ul>
@@ -32,19 +33,31 @@ export default function Home() {
           ))}
         </ul>
         <p>
-          <a href={asset("/quick/")}>Quick Mode</a> · <a href={asset("/resume/")}>Resume</a> · <a href={emailHref()}>{profile.contact.email}</a> ·{" "}
+          <a href={asset("/quick/")}>Quick view</a> · <a href={asset("/resume/")}>Resume</a> · <a href={emailHref()}>{profile.contact.email}</a> ·{" "}
           <a href={whatsappHref()}>WhatsApp</a>
         </p>
       </main>
       <noscript>
-        <div style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center", background: "#050506", color: "#ece6da", textAlign: "center", padding: 24, zIndex: 100 }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            background: "var(--background)",
+            color: "var(--text-primary)",
+            textAlign: "center",
+            padding: 24,
+            zIndex: 100,
+          }}
+        >
           <div>
-            <p style={{ fontFamily: "var(--font-serif)", fontSize: 40, margin: 0 }}>{profile.name}</p>
-            <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase" }}>{profile.title}</p>
+            <p style={{ fontFamily: "var(--font-serif)", fontSize: 44, margin: 0 }}>{profile.name}</p>
+            <p style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.3em", textTransform: "uppercase" }}>{profile.title}</p>
             <p style={{ marginTop: 24 }}>
-              The interactive experience needs JavaScript.{" "}
+              The film needs JavaScript.{" "}
               <a href={asset("/quick/")} style={{ textDecoration: "underline" }}>
-                Open Quick Mode
+                Open Quick view
               </a>{" "}
               ·{" "}
               <a href={asset("/resume/")} style={{ textDecoration: "underline" }}>

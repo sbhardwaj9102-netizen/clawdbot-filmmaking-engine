@@ -6,20 +6,19 @@ import { useEffect, useMemo, useRef } from "react";
 import { CylinderGeometry, type Group, Matrix4, type Mesh, SphereGeometry, TorusGeometry, Vector3 } from "three";
 
 import { radialTexture } from "@/lib/canvasTextures";
-import { audio } from "@/systems/AudioManager/audio";
-import { rt } from "@/systems/SceneManager/director";
-import { clamp, damp } from "@/systems/SceneManager/space";
-import { useStory } from "@/systems/StoryEngine/store";
+import { clamp, damp } from "@/lib/math";
+import { rt } from "@/systems/Experience/runtime";
+import { useExperience } from "@/systems/Experience/store";
 
 import { AVATAR_MATERIALS, hair, head, limb, pelvis, torso } from "./geometry";
 
 /**
- * THE AVATAR — Satyam, the protagonist. One persistent figure that walks,
- * stops, turns, looks at what's near him and reaches for what he uses.
+ * THE AVATAR — Satyam, the protagonist. One persistent figure that walks
+ * between his marks, stops, turns and looks at the work.
  *
  * The rig is a plain transform hierarchy animated procedurally:
  *   walk cycle (stride/cadence from speed) · idle breathing & weight shift ·
- *   head/neck look-at · right-arm reach · footstep sounds on heel strike.
+ *   head/neck look-at · right-arm reach. Silent: no footsteps.
  */
 
 const TWO_PI = Math.PI * 2;
@@ -48,7 +47,7 @@ export function Avatar({ castShadow = false }: { castShadow?: boolean }) {
   const root = useRef<Group>(null);
   const b = useRef<Partial<Bones>>({});
   const shadow = useRef<Mesh>(null);
-  const reduced = useStory((s) => s.reducedMotion);
+  const reduced = useExperience((s) => s.reducedMotion);
 
   const geo = useMemo(
     () => ({
@@ -82,7 +81,7 @@ export function Avatar({ castShadow = false }: { castShadow?: boolean }) {
     [geo, mat],
   );
 
-  const state = useRef({ phase: 0, w: 0, lookYaw: 0, lookPitch: 0, reach: 0, breathe: 0, lastStep: 0, prevYaw: 0, turn: 0 });
+  const state = useRef({ phase: 0, w: 0, lookYaw: 0, lookPitch: 0, reach: 0, breathe: 0, prevYaw: 0, turn: 0 });
   const inv = useMemo(() => new Matrix4(), []);
   const local = useMemo(() => new Vector3(), []);
 
@@ -110,13 +109,6 @@ export function Avatar({ castShadow = false }: { castShadow?: boolean }) {
     const w = st.w;
     const ph = st.phase;
     const amp = 0.34 + 0.12 * Math.min(speed / 2, 1);
-
-    // footsteps on heel strike (phase crosses π/2 or 3π/2)
-    const stepIdx = Math.floor((ph + Math.PI / 2) / Math.PI);
-    if (stepIdx !== st.lastStep) {
-      st.lastStep = stepIdx;
-      if (w > 0.35) audio.footstep(0.4 + 0.6 * w);
-    }
 
     // legs
     const leg = (thigh: Group, knee: Group, ankle: Group, p: number) => {

@@ -4,12 +4,13 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import { AdditiveBlending, Color, CylinderGeometry, DoubleSide, ShaderMaterial } from "three";
 
-import { rt } from "@/systems/SceneManager/director";
+import { rt } from "@/systems/Experience/runtime";
 
 /**
  * Fake volumetric light: an additive cone whose brightness falls off along its
  * length and toward its edges, with slow drifting noise — light cutting
  * through haze. Point it by placing/rotating the group; the cone opens downward.
+ * Fades by day (haze reads as glare in a bright room) and with its room's light.
  */
 const vert = /* glsl */ `
   varying vec3 vPos;
@@ -50,8 +51,11 @@ export function LightShaft({
   opacity = 0.18,
   top = 0.08,
   level,
+  room,
 }: {
   level?: { current: number };
+  /** Fade with this room's light level. */
+  room?: "producer" | "strategist";
   length?: number;
   radius?: number;
   color?: string;
@@ -80,7 +84,8 @@ export function LightShaft({
   );
   useFrame(() => {
     mat.uniforms.uTime.value = rt.time;
-    if (level) mat.uniforms.uOpacity.value = opacity * level.current;
+    const roomLevel = room ? rt.rooms[room] : 1;
+    mat.uniforms.uOpacity.value = opacity * (level ? level.current : 1) * roomLevel * rt.look.palette.haze;
   });
   return (
     <mesh geometry={geo} material={mat} position={[0, -length / 2, 0]} renderOrder={2} userData={{ shaft: true }} raycast={() => null} />

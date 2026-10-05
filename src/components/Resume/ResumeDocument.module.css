@@ -8,7 +8,9 @@
   font-family: var(--font-sans);
   font-size: 13.5px;
   line-height: 1.5;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-soft);
 }
 
 .head {
@@ -165,6 +167,8 @@
     min-height: 100vh;
     padding: 13mm 15mm;
     box-shadow: none;
+    border: 0;
+    border-radius: 0;
     background: #fff;
     font-size: 10.6px;
     line-height: 1.42;

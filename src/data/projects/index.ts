@@ -14,3 +14,6 @@ export type { Project, ProjectSection, SectionKind } from "./types";
 export const projects: Project[] = [aster, purple, rana, gluttony];
 
 export const getProject = (key: string) => projects.find((p) => p.slug === key || p.scene === key);
+
+/** Where a film lives in Explore → Work (RANA and GLUTTONY share a page). */
+export const workOf = (p: Project) => (p.scene === "aster" ? "aster" : p.scene === "purple" ? "purple" : "more") as "aster" | "purple" | "more";

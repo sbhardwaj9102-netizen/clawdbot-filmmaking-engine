@@ -14,14 +14,13 @@ export const rana: Project = {
   cover: { src: `${R}/cover.jpg`, alt: "A fort on a ridge in dust-filled evening light" },
   accent: "#e0a35c",
   theme: "rana",
-  status: "Production details for this film are being prepared for the portfolio.",
   facts: [{ label: "Role", value: "Film production" }],
   sections: [
     {
       kind: "production",
       title: "Production",
       kicker: "Film production",
-      body: ["Film production.", "Production details for this film are being prepared for the portfolio."],
+      body: ["Film production."],
       facts: [{ label: "Role", value: "Film production" }],
       media: [{ src: `${R}/poster.jpg`, alt: "A fort silhouetted against a dusty sky", label: "RANA" }],
     },

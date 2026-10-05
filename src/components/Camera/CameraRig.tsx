@@ -1,121 +1,110 @@
 "use client";
 
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
-import { MathUtils, type PerspectiveCamera, Vector3 } from "three";
+import { useMemo, useRef } from "react";
+import type { PerspectiveCamera } from "three";
 
-import { rt } from "@/systems/SceneManager/director";
-import { damp, UP } from "@/systems/SceneManager/space";
-import { getStory } from "@/systems/StoryEngine/store";
+import { chapters } from "@/data/story";
+import { clamp, damp, easeInOut } from "@/lib/math";
+import { rt } from "@/systems/Experience/runtime";
+import { makePose, poseAt } from "@/systems/Experience/shots";
+import { getExperience } from "@/systems/Experience/store";
+import { tour } from "@/systems/Experience/tour";
 
 /**
- * CAMERA RIG — smooths toward the director's desired pose with mode-specific
- * easing (dolly, tracking, push-in, pull-out), then layers on:
- *   • mouse parallax and a faint handheld drift (off in reduced motion)
- *   • portrait-aware field of view, so phones keep a cinematic frame
- *   • a view offset that keeps the subject clear of an open side panel
+ * CAMERA RIG — plays the shot the director asked for. A new shot starts from
+ * wherever the camera is and eases into the shot's own slow push; in the tour
+ * the push runs on the chapter clock, so pausing freezes the frame. A breath
+ * of handheld drift and (in Explore) a touch of pointer parallax keep the
+ * frame alive. Reduced motion: cuts, no drift, no parallax.
+ *
+ * Framing: on wide screens the subject is nudged right during the tour
+ * (captions sit left) and left when a side panel covers the right; on
+ * narrow screens it is lifted above Explore's bottom sheet.
  */
-
-const LAMBDA: Record<string, [number, number]> = {
-  intro: [9, 9],
-  follow: [2.4, 3.4],
-  transit: [3.2, 4],
-  focus: [2.2, 2.6],
-  shot: [1.5, 1.9],
-  dive: [3.5, 4],
-};
-
 export function CameraRig() {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
-  const par = useRef({ x: 0, y: 0, offX: 0, offY: 0, mode: "" });
-  const tmp = useRef({ right: new Vector3(), up: new Vector3(), off: new Vector3() });
-
-  useEffect(() => {
-    camera.near = 0.08;
-    camera.far = 260;
-    camera.updateProjectionMatrix();
-  }, [camera]);
+  const from = useMemo(makePose, []);
+  const want = useMemo(makePose, []);
+  const out = useMemo(makePose, []);
+  const last = useRef({ id: "", since: -1 });
+  const offset = useRef(0);
+  const offsetY = useRef(0);
+  const par = useRef({ x: 0, y: 0 });
 
   useFrame((_, rawDt) => {
-    const dt = Math.min(rawDt, 0.05) * rt.timeScale;
-    const c = rt.camera;
-    const d = c.desired;
-    const s = getStory();
+    const dt = Math.min(rawDt, 0.05);
+    const s = getExperience();
+    const shot = rt.shot;
     const reduced = s.reducedMotion;
-    const p = par.current;
+    rt.view.portrait = size.height > size.width * 1.05;
+    rt.view.mobile = size.width < 760;
 
-    if (c.snap) {
-      c.pos.copy(d.pos);
-      c.look.copy(d.look);
-      c.fov = d.fov;
-      c.snap = false;
-    } else {
-      // reduced motion: shot changes become cuts, tracking stays tight and calm
-      if (reduced && p.mode !== c.mode && (c.mode === "shot" || c.mode === "focus" || p.mode === "shot" || p.mode === "focus")) {
-        c.pos.copy(d.pos);
-        c.look.copy(d.look);
-        c.fov = d.fov;
-      }
-      const [lp, ll] = LAMBDA[c.mode] ?? LAMBDA.follow;
-      const k = reduced ? 2.2 : 1;
-      c.pos.x = damp(c.pos.x, d.pos.x, lp * k, dt);
-      c.pos.y = damp(c.pos.y, d.pos.y, lp * k, dt);
-      c.pos.z = damp(c.pos.z, d.pos.z, lp * k, dt);
-      c.look.x = damp(c.look.x, d.look.x, ll * k, dt);
-      c.look.y = damp(c.look.y, d.look.y, ll * k, dt);
-      c.look.z = damp(c.look.z, d.look.z, ll * k, dt);
-      c.fov = damp(c.fov, d.fov, 2.5, dt);
-    }
-    p.mode = c.mode;
-
-    // parallax + handheld
-    const fine = !rt.mobile && !reduced;
-    p.x = damp(p.x, fine ? rt.pointer.x : 0, 2.2, dt);
-    p.y = damp(p.y, fine ? rt.pointer.y : 0, 2.2, dt);
-    const t = rt.time;
-    const drift = reduced ? 0 : 1;
-    const { right, up, off } = tmp.current;
-    right.subVectors(c.look, c.pos).cross(UP).normalize();
-    up.copy(UP);
-    const amp = c.mode === "focus" ? 0.12 : c.mode === "intro" ? 0.05 : 0.3;
-    off
-      .set(0, 0, 0)
-      .addScaledVector(right, p.x * amp + Math.sin(t * 0.37) * 0.025 * drift)
-      .addScaledVector(up, -p.y * amp * 0.55 + Math.sin(t * 0.53 + 1.3) * 0.018 * drift);
-
-    camera.position.copy(c.pos).add(off);
-    const lookOff = off.multiplyScalar(0.35);
-    camera.lookAt(c.look.x + lookOff.x, c.look.y + lookOff.y, c.look.z + lookOff.z);
-
-    // portrait framing: widen the vertical FOV toward a 16:9 horizontal field
-    const aspect = size.width / Math.max(1, size.height);
-    let fov = c.fov;
-    if (aspect < 1.1) {
-      const h = 2 * Math.atan(Math.tan(MathUtils.degToRad(fov) / 2) * 1.25);
-      const v = MathUtils.radToDeg(2 * Math.atan(Math.tan(h / 2) / aspect));
-      fov = Math.min(74, fov + (v - fov) * 0.62);
+    // a new shot: start from where we are
+    if (shot.id !== last.current.id || shot.since !== last.current.since) {
+      from.pos.copy(camera.position);
+      from.look.copy(out.look.lengthSq() ? out.look : camera.position);
+      from.fov = camera.fov;
+      if (last.current.since < 0) shot.blend = 0;
+      last.current = { id: shot.id, since: shot.since };
     }
 
-    // keep the subject clear of the side panel (desktop) / bottom sheet (mobile)
-    const panel = !!s.hotspot && s.hotspot.status === "open" && !s.lightbox && !s.overlay;
-    const wide = size.width >= 900;
-    const targetX = panel && wide ? Math.min(size.width * 0.21, 300) : 0;
-    const targetY = panel && !wide ? -size.height * 0.2 : 0;
-    p.offX = damp(p.offX, targetX, 4, dt);
-    p.offY = damp(p.offY, targetY, 4, dt);
+    const inTour = s.mode === "tour" && !s.ended;
+    const elapsed = inTour ? rt.chapterT : (performance.now() - shot.since) / 1000;
+    const duration = inTour ? chapters[tour.index].duration : 30;
+    poseAt(shot.id, elapsed, duration, { still: reduced, portrait: rt.view.portrait }, want);
+
+    const k = shot.blend <= 0 ? 1 : easeInOut(clamp((performance.now() - shot.since) / 1000 / shot.blend, 0, 1));
+    out.pos.copy(from.pos).lerp(want.pos, k);
+    out.look.copy(from.look).lerp(want.look, k);
+    out.fov = from.fov + (want.fov - from.fov) * k;
+
+    if (!reduced) {
+      // handheld breath
+      const t = rt.time;
+      out.pos.x += Math.sin(t * 0.31) * 0.025 + Math.sin(t * 0.73) * 0.01;
+      out.pos.y += Math.sin(t * 0.43 + 1.3) * 0.018;
+      out.look.x += Math.sin(t * 0.37 + 0.4) * 0.02;
+      // parallax, where the visitor is looking around
+      const free = s.mode !== "tour" && !s.overlay;
+      par.current.x = damp(par.current.x, free ? rt.pointer.x : 0, 2, dt);
+      par.current.y = damp(par.current.y, free ? rt.pointer.y : 0, 2, dt);
+      out.pos.x += par.current.x * 0.22;
+      out.pos.y -= par.current.y * 0.12;
+    }
+
+    camera.position.copy(out.pos);
+    camera.lookAt(out.look);
+    rt.camera.pos.copy(out.pos);
+    rt.camera.dir.copy(out.look).sub(out.pos).setY(0).normalize();
+
+    // framing around the interface
+    const wide = size.width >= 1024 && !rt.view.portrait;
+    let target = 0;
+    if (wide && s.mode === "tour" && !s.ended) target = -size.width * 0.07;
+    else if (wide && rt.view.panel > 0) target = rt.view.panel * 0.5;
+    offset.current = reduced ? target : damp(offset.current, target, 3, dt);
+    // a sheet along the bottom (Explore on phones and tablets): lift the subject into the space above it
+    const targetY = !wide && s.mode === "explore" ? rt.view.sheet * 0.45 : 0;
+    offsetY.current = reduced ? targetY : damp(offsetY.current, targetY, 3, dt);
 
     let dirty = false;
-    if (Math.abs(camera.fov - fov) > 0.01) {
-      camera.fov = fov;
+    if (Math.abs(camera.fov - out.fov) > 0.01) {
+      camera.fov = out.fov;
       dirty = true;
     }
-    if (Math.abs(p.offX) > 0.5 || Math.abs(p.offY) > 0.5) {
-      camera.setViewOffset(size.width, size.height, p.offX, -p.offY, size.width, size.height);
-      dirty = true;
+    const o = Math.round(offset.current);
+    const oy = Math.round(offsetY.current);
+    if (o !== 0 || oy !== 0) {
+      const v = camera.view;
+      if (!v || !v.enabled || v.offsetX !== o || v.offsetY !== oy || v.fullWidth !== size.width || v.fullHeight !== size.height) {
+        camera.setViewOffset(size.width, size.height, o, oy, size.width, size.height);
+        dirty = false;
+      }
     } else if (camera.view?.enabled) {
       camera.clearViewOffset();
-      dirty = true;
+      dirty = false;
     }
     if (dirty) camera.updateProjectionMatrix();
   }, -1);

@@ -14,14 +14,13 @@ export const gluttony: Project = {
   cover: { src: `${G}/cover.jpg`, alt: "A long candle-lit banquet table in a crimson room" },
   accent: "#e0574a",
   theme: "gluttony",
-  status: "Production details for this film are being prepared for the portfolio.",
   facts: [{ label: "Role", value: "Film production" }],
   sections: [
     {
       kind: "production",
       title: "Production",
       kicker: "Film production",
-      body: ["Film production.", "Production details for this film are being prepared for the portfolio."],
+      body: ["Film production."],
       facts: [{ label: "Role", value: "Film production" }],
       media: [{ src: `${G}/poster.jpg`, alt: "Banquet table in crimson light", label: "GLUTTONY" }],
     },
