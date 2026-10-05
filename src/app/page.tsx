@@ -1,21 +1,21 @@
-import Link from "next/link";
-
 import { ExperienceRoot } from "@/components/Experience/ExperienceRoot";
 import { profile } from "@/data/profile";
 import { projects } from "@/data/projects";
+import { asset } from "@/lib/assets";
 import { emailHref, whatsappHref } from "@/lib/contact";
 
 /**
  * Home: the interactive film. The static HTML carries a readable summary and
  * links for crawlers, no-JS visitors and screen readers; the 3D experience
- * mounts on top of it on the client.
+ * mounts on top of it on the client. Plain links: nothing here should be
+ * prefetched while the studio loads.
  */
 export default function Home() {
   return (
     <>
-      <Link className="skip" href="/quick/">
+      <a className="skip" href={asset("/quick/")}>
         Skip to Quick Mode — the whole portfolio on one page
-      </Link>
+      </a>
       <main id="main" className="sr-only">
         <h1>
           {profile.name} — {profile.title}
@@ -25,14 +25,14 @@ export default function Home() {
         <ul>
           {projects.map((p) => (
             <li key={p.slug}>
-              <Link href={`/work/${p.slug}/`}>
+              <a href={asset(`/work/${p.slug}/`)}>
                 {p.title} — {p.role}, {p.format}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>
         <p>
-          <Link href="/quick/">Quick Mode</Link> · <Link href="/resume/">Resume</Link> · <a href={emailHref()}>{profile.contact.email}</a> ·{" "}
+          <a href={asset("/quick/")}>Quick Mode</a> · <a href={asset("/resume/")}>Resume</a> · <a href={emailHref()}>{profile.contact.email}</a> ·{" "}
           <a href={whatsappHref()}>WhatsApp</a>
         </p>
       </main>
@@ -43,13 +43,13 @@ export default function Home() {
             <p style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase" }}>{profile.title}</p>
             <p style={{ marginTop: 24 }}>
               The interactive experience needs JavaScript.{" "}
-              <Link href="/quick/" style={{ textDecoration: "underline" }}>
+              <a href={asset("/quick/")} style={{ textDecoration: "underline" }}>
                 Open Quick Mode
-              </Link>{" "}
+              </a>{" "}
               ·{" "}
-              <Link href="/resume/" style={{ textDecoration: "underline" }}>
+              <a href={asset("/resume/")} style={{ textDecoration: "underline" }}>
                 Resume
-              </Link>
+              </a>
             </p>
           </div>
         </div>

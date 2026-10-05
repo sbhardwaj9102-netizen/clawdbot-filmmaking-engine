@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { ResumeDocument } from "@/components/Resume/ResumeDocument";
 import { profile } from "@/data/profile";
@@ -17,9 +16,9 @@ export default function ResumePage() {
   return (
     <main className={styles.page}>
       <nav className={styles.bar} aria-label="Resume actions">
-        <Link href="/">← The experience</Link>
+        <a href={asset("/")}>← The experience</a>
         <div>
-          <Link href="/quick/">Quick mode</Link>
+          <a href={asset("/quick/")}>Quick mode</a>
           <a href={asset(profile.resumePdf)} download className={styles.download}>
             Download PDF
           </a>

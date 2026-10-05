@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getProject, projects } from "@/data/projects";
@@ -30,7 +29,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
   return (
     <main className={styles.page}>
       <nav className={styles.bar}>
-        <Link href="/quick/#work">← All work</Link>
+        <a href={asset("/quick/#work")}>← All work</a>
         <a href={asset(`/?go=${p.scene}`)} className={styles.enter}>
           Enter {p.title.length > 16 ? "the film" : p.title}&apos;s world →
         </a>
