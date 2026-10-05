@@ -63,11 +63,11 @@ const THEMES: Record<Project["theme"], { palette: Palette; key: WorldLayout["key
   },
   purple: {
     palette: {
-      fog: "#130c1c",
-      fogDensity: 0.034,
-      sky: "#3c2b58",
-      ground: "#0a0610",
-      ambient: 0.4,
+      fog: "#170f22",
+      fogDensity: 0.03,
+      sky: "#5a4280",
+      ground: "#0e0815",
+      ambient: 0.7,
       floor: "#1e1724",
       floorRoughness: 0.42,
       accent: "#a68cff",

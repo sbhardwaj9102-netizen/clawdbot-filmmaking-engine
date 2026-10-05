@@ -138,12 +138,12 @@ export function StudioWorld() {
       </mesh>
 
       {/* ── the far stage: a cyc wall, a set flat, gear ── */}
-      <mesh position={[12.5, 4, -19.6]} material={M.tinted("#565d6c", 0.95, 0)}>
+      <mesh position={[12.5, 3.2, -19.6]} material={M.tinted("#3d434f", 0.95, 0)}>
         <planeGeometry args={[11, 8]} />
       </mesh>
       <group position={[-11, 0, -14]} rotation-y={0.5}>
         <Wall w={5} h={4} t={0.12} opening={{ w: 1.4, h: 2.2, x: 0.8 }} material="concrete" />
-        <mesh position={[0.8, 1.6, -0.2]} material={M.bulb("#ffbf7a", 0.55)}>
+        <mesh position={[0.8, 1.6, -0.2]} material={M.bulb("#ffbf7a", 0.4)}>
           <planeGeometry args={[1.4, 2.2]} />
         </mesh>
       </group>

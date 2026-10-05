@@ -157,7 +157,7 @@ function PurpleHouse({ end }: { end: number }) {
               h={4.6}
               t={0.2}
               opening={i % 2 ? { w: 1.4, h: 2.6, x: 0 } : undefined}
-              material="concrete"
+              color="#5a4670"
             />
           ))}
         </group>

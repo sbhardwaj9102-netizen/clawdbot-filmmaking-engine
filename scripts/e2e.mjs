@@ -218,7 +218,8 @@ console.log(`\nE2E against ${BASE}\n`);
     assert(mail?.includes("@"), "no email link");
   });
   await check("18. Quick Mode opens over the experience", async () => {
-    await page.getByRole("button", { name: "Quick mode" }).first().click();
+    // from the contact card (the control bar steps aside while it is up)
+    await page.locator('section[role="dialog"]').getByRole("button", { name: "Quick mode" }).click();
     await until(page, () => window.__sb.store.getState().overlay === "quick");
     for (const id of ["work", "experience", "capabilities", "about", "resume", "contact"]) assert(await page.locator(`#${id}`).count(), `section #${id} missing`);
     await shot(page, "11-quick");

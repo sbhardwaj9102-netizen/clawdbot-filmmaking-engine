@@ -32,8 +32,27 @@ export function Column({ position, h = 12, w = 0.8, material }: { position?: V3;
 }
 
 /** A wall segment (along X), optional opening. */
-export function Wall({ position, rotation, w = 10, h = 8, t = 0.3, opening, material = "concrete" }: { position?: V3; rotation?: V3; w?: number; h?: number; t?: number; opening?: { w: number; h: number; x?: number }; material?: "concrete" | "dark" | "metal" }) {
-  const mat = material === "dark" ? M.concreteDark() : material === "metal" ? M.darkMetal() : M.concrete();
+export function Wall({
+  position,
+  rotation,
+  w = 10,
+  h = 8,
+  t = 0.3,
+  opening,
+  material = "concrete",
+  color,
+}: {
+  position?: V3;
+  rotation?: V3;
+  w?: number;
+  h?: number;
+  t?: number;
+  opening?: { w: number; h: number; x?: number };
+  material?: "concrete" | "dark" | "metal";
+  /** Painted finish instead of the default material. */
+  color?: string;
+}) {
+  const mat = color ? M.tinted(color, 0.9, 0) : material === "dark" ? M.concreteDark() : material === "metal" ? M.darkMetal() : M.concrete();
   if (!opening) {
     return (
       <mesh position={[position?.[0] ?? 0, (position?.[1] ?? 0) + h / 2, position?.[2] ?? 0]} rotation={rotation} material={mat} receiveShadow>

@@ -11,7 +11,16 @@ import styles from "./QuickMode.module.css";
  * minutes. Shared by the in-experience overlay and the static /quick route.
  * `onEnter(scene)` (overlay) jumps into the world; without it, links go to /?go=…
  */
-export function QuickMode({ onClose, onEnter }: { onClose?: () => void; onEnter?: (scene: string) => void }) {
+export function QuickMode({
+  onClose,
+  onEnter,
+  noExperience = false,
+}: {
+  onClose?: () => void;
+  onEnter?: (scene: string) => void;
+  /** This device can't run WebGL: hide links into the 3D experience. */
+  noExperience?: boolean;
+}) {
   const enterHref = (scene: string) => asset(`/?go=${scene}`);
   const EnterLink = ({ scene, children }: { scene: string; children: React.ReactNode }) =>
     onEnter ? (
@@ -36,7 +45,9 @@ export function QuickMode({ onClose, onEnter }: { onClose?: () => void; onEnter?
           <a href="#resume">Resume</a>
           <a href="#contact">Contact</a>
         </nav>
-        {onClose ? (
+        {noExperience ? (
+          <span />
+        ) : onClose ? (
           <button type="button" className={styles.back} onClick={onClose}>
             Back to the experience →
           </button>
@@ -84,7 +95,7 @@ export function QuickMode({ onClose, onEnter }: { onClose?: () => void; onEnter?
                   {p.sections[0]?.body?.[0] && <p className={styles.body}>{p.sections[0].body[0]}</p>}
                   {p.status && <p className={styles.status}>{p.status}</p>}
                   <div className={styles.links}>
-                    <EnterLink scene={p.scene}>Enter the film&apos;s world →</EnterLink>
+                    {!noExperience && <EnterLink scene={p.scene}>Enter the film&apos;s world →</EnterLink>}
                     <a href={asset(`/work/${p.slug}/`)}>Project page</a>
                   </div>
                 </div>
@@ -114,9 +125,11 @@ export function QuickMode({ onClose, onEnter }: { onClose?: () => void; onEnter?
               ))}
             </ul>
             <p className={styles.status}>{events.note}</p>
-            <div className={styles.links}>
-              <EnterLink scene="events">Enter the venue →</EnterLink>
-            </div>
+            {!noExperience && (
+              <div className={styles.links}>
+                <EnterLink scene="events">Enter the venue →</EnterLink>
+              </div>
+            )}
           </div>
           <div>
             <h3 className={styles.h3}>Academic projects</h3>

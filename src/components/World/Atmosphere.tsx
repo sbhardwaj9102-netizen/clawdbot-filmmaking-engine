@@ -40,7 +40,7 @@ export function Atmosphere() {
     const s = useStory.getState();
     let density = pal.fogDensity;
     // without bloom (low tier) emissive light reads flatter — lift exposure a little
-    let exposure = pal.exposure * (s.tier === "low" ? 1.18 : 1);
+    let exposure = pal.exposure * (s.tier === "low" ? 1.18 : 1.08);
 
     // corridor: fog peaks at the swap point, hiding one world as the next assembles
     const t = rt.transit;

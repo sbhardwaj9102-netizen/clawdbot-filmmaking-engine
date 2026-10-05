@@ -54,7 +54,7 @@ export function QuickModeOverlay() {
           This device can&apos;t run the 3D experience — here is everything in Quick Mode.
         </p>
       )}
-      <QuickMode onClose={canReturn ? close : undefined} onEnter={canReturn ? enter : undefined} />
+      <QuickMode onClose={canReturn ? close : undefined} onEnter={canReturn ? enter : undefined} noExperience={!canReturn} />
     </div>
   );
 }
