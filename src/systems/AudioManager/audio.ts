@@ -138,6 +138,12 @@ class AudioManager {
     mur.connect(mBand).connect(this.murmurGain).connect(this.master);
     mur.start();
 
+    // silence the room while the tab is in the background
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) void ctx.suspend();
+      else if (this.enabled) void ctx.resume();
+    });
+
     this.applyWorld(0.01);
   }
 

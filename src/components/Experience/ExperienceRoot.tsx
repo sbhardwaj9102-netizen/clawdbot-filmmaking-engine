@@ -19,6 +19,7 @@ import { ResumeOverlay } from "@/components/Resume/ResumeOverlay";
 import { QuestionOverlay } from "@/components/StoryChoice/QuestionOverlay";
 import { useJourneyInput } from "@/systems/Input/useJourneyInput";
 import { detectTier, hasWebGL } from "@/systems/Quality/quality";
+import { rt } from "@/systems/SceneManager/director";
 import * as engine from "@/systems/StoryEngine/engine";
 import { debugState, prepare, setReducedMotion } from "@/systems/StoryEngine/engine";
 import { startPersistence } from "@/systems/StoryEngine/persistence";
@@ -63,7 +64,7 @@ export function ExperienceRoot() {
     Promise.race([fonts, timeout]).then(() => setFontsReady(true));
 
     // test / debug hook
-    (window as unknown as { __sb?: unknown }).__sb = { store: useStory, state: debugState, engine };
+    (window as unknown as { __sb?: unknown }).__sb = { store: useStory, state: debugState, engine, rt };
     return () => html.classList.remove("experience");
   }, []);
 

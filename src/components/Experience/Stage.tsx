@@ -70,9 +70,10 @@ function Projector() {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
   const scene = useThree((s) => s.scene);
+  const gl = useThree((s) => s.gl);
   useEffect(() => {
-    (window as unknown as { __sb3?: unknown }).__sb3 = { scene, camera };
-  }, [scene, camera]);
+    (window as unknown as { __sb3?: unknown }).__sb3 = { scene, camera, gl };
+  }, [scene, camera, gl]);
   useEffect(() => {
     const v = new Vector3();
     setProjector((p) => {

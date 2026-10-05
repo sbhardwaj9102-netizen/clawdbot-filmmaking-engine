@@ -49,6 +49,10 @@ export function startPersistence() {
       progress: s.progress,
     }),
     (journey) => {
+      // The studio is set up behind the loader before anyone enters; that must
+      // not overwrite the journey a returning visitor may want to continue.
+      const phase = useStory.getState().phase;
+      if (phase === "boot" || phase === "ready") return;
       try {
         window.localStorage.setItem(KEY, JSON.stringify(journey));
       } catch {

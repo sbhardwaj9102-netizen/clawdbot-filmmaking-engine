@@ -52,10 +52,10 @@ export function StudioWorld() {
       // a point of light that stretches into the door's seam, then floods as it opens
       const appear = smoothstep(0.7, 1.6, t);
       const stretch = smoothstep(1.3, 2.9, t);
-      // the seam widens a little as the leaves part, then gives way to the lit studio behind
-      seam.current.scale.set(0.035 + door.current * 0.6, 0.01 + stretch * 0.99, 1);
+      // as the leaves part, the seam gives way to the lit studio behind
+      seam.current.scale.set(0.035 + door.current * 0.2, 0.01 + stretch * 0.99, 1);
       seam.current.position.y = 0.02 + (6.5 / 2) * (0.35 + 0.65 * stretch);
-      seamMat.opacity = appear * (1 - smoothstep(3.6, 4.6, t)) * (t > 50 ? 0 : 1);
+      seamMat.opacity = appear * (1 - smoothstep(3.4, 4.0, t)) * (t > 50 ? 0 : 1);
     }
     const r = reveal ? clamp(since(reveal) / 1.8, 0, 1) : 0;
     revealK.current = damp(revealK.current, s.currentChoice && s.transition ? 0.6 : r, 3, dt);
@@ -76,7 +76,7 @@ export function StudioWorld() {
     <group>
       {/* ── architecture ─────────────────────────────── */}
       <Wall position={[0, 0, 16.3]} w={38} h={13} opening={{ w: 4.6, h: 6.8 }} material="dark" />
-      <SlidingDoor position={[0, 0, 16.05]} w={4.4} h={6.5} open={door} />
+      <SlidingDoor position={[0, 0, 16.05]} w={4.9} h={6.5} open={door} />
       <mesh ref={seam} position={[0, 3.25, 16.2]} material={seamMat}>
         <planeGeometry args={[1, 6.5]} />
       </mesh>

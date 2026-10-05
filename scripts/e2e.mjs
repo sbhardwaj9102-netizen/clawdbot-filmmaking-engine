@@ -4,7 +4,8 @@
 //
 // Walks the real experience: loader → intro → avatar walks → script → the three
 // branches → a film's world → media → back → about → resume → contact → Quick
-// Mode → mobile → reduced motion, and fails on any page error.
+// Mode → mobile → reduced motion → keyboard, menu, continue, deep link, and
+// fails on any page error.
 // Screenshots go to ./test-results. Uses `?speed=8&quality=low` so software
 // rendering finishes in minutes; the logic under test is the same.
 import { createReadStream, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
@@ -322,6 +323,67 @@ for (const [option, scene, n] of [
     const kind = (await S(page)).transition.kind;
     assert(kind === "cut", `transition was ${kind}`);
     await until(page, () => window.__sb.store.getState().currentScene === "finance" && !window.__sb.store.getState().transition);
+  });
+  await context.close();
+}
+
+// ── keyboard, menu, returning visitor, deep link ────────────────
+{
+  const { context, page } = await open({ label: "returning" });
+  await check("20b. keyboard: ↓ walks, Tab reaches the objects, Esc closes", async () => {
+    await enterExperience(page);
+    await until(page, () => window.__sb.store.getState().phase === "explore");
+    const u0 = (await page.evaluate(() => window.__sb.state())).u;
+    await page.keyboard.down("ArrowDown");
+    await page.waitForTimeout(1200);
+    await page.keyboard.up("ArrowDown");
+    await page.waitForTimeout(400);
+    assert((await page.evaluate(() => window.__sb.state())).u > u0, "ArrowDown did not walk");
+    let inList = false;
+    for (let i = 0; i < 30 && !inList; i++) {
+      await page.keyboard.press("Tab");
+      inList = await page.evaluate(() => !!document.activeElement?.closest('nav[aria-label="Objects in this space"]'));
+    }
+    assert(inList, "Tab never reached the object list");
+    await page.keyboard.press("Enter");
+    await until(page, () => !!window.__sb.store.getState().hotspot);
+    for (let i = 0; i < 3; i++) {
+      const s = await S(page);
+      if (!s.hotspot && !s.overlay) break;
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(400);
+    }
+    const s = await S(page);
+    assert(!s.hotspot && !s.overlay, "Esc did not close the object");
+  });
+  await check("20c. Menu jumps to a world", async () => {
+    await page.getByRole("button", { name: "Menu" }).click();
+    await page.getByRole("dialog", { name: "Menu" }).getByRole("button", { name: /^Finance/ }).click();
+    await until(page, () => window.__sb.store.getState().currentScene === "finance" && !window.__sb.store.getState().transition);
+  });
+  await check("20d. a returning visitor continues where they left off", async () => {
+    await page.waitForTimeout(500);
+    await page.reload({ waitUntil: "load" });
+    const cont = page.getByRole("button", { name: /^Continue where you left off/ });
+    await cont.waitFor({ timeout: 60000 });
+    await until(page, () => window.__sb?.store.getState().phase === "ready");
+    await cont.click();
+    await until(page, () => window.__sb.store.getState().phase === "explore");
+    const s = await S(page);
+    assert(s.currentScene === "finance", `continued at ${s.currentScene}`);
+    assert(s.visitedScenes.includes("finance"), "visited scenes not restored");
+  });
+  await context.close();
+}
+{
+  const { context, page } = await open({ label: "deeplink", query: "&go=rana" });
+  await check("20e. a deep link (/?go=rana) enters at that film", async () => {
+    await until(page, () => window.__sb?.store.getState().phase === "ready");
+    await page.getByRole("button", { name: "Enter at RANA" }).click();
+    await until(page, () => window.__sb.store.getState().phase === "explore");
+    assert((await S(page)).currentScene === "rana", "not in RANA");
+    await page.waitForTimeout(1200);
+    await shot(page, "15-deeplink-rana");
   });
   await context.close();
 }

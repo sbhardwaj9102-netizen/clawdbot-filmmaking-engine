@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { profile } from "@/data/profile";
-import { sceneById } from "@/data/story/scenes";
+import { jumpTargets, sceneById } from "@/data/story/scenes";
 import type { SceneId } from "@/data/story/types";
 import { asset } from "@/lib/assets";
 import { emailHref, whatsappHref } from "@/lib/contact";
@@ -79,7 +79,7 @@ export function Loader({ ready }: { ready: boolean }) {
 
         <div className={`${styles.actions} ${canEnter ? styles.show : ""}`}>
           <button type="button" className={styles.enter} onClick={() => go({})} disabled={!canEnter} autoFocus data-cursor="ENTER">
-            {target ? `Enter at ${sceneById[target].chapter.title}` : "Enter"}
+            {target ? `Enter at ${jumpTargets.find((t) => t.scene === target)?.label ?? sceneById[target].chapter.title}` : "Enter"}
           </button>
           {saved && !target && (
             <button type="button" className={styles.resume} onClick={() => go({ resume: true })} disabled={!canEnter}>

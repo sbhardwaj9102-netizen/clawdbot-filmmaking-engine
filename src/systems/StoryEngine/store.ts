@@ -63,7 +63,6 @@ export type StoryState = Journey & {
   reducedMotion: boolean;
   autoWalk: boolean;
   tier: Tier;
-  readyWorlds: Record<string, boolean>;
   webgl: boolean;
 
   set: (partial: Partial<StoryState>) => void;
@@ -113,7 +112,6 @@ export const useStory = create<StoryState>()(
     reducedMotion: false,
     autoWalk: false,
     tier: "medium",
-    readyWorlds: {},
     webgl: true,
 
     set: (partial) => set(partial),

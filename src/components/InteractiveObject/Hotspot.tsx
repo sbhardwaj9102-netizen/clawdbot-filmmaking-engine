@@ -3,7 +3,7 @@
 import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import { createContext, type ReactNode, useContext, useMemo, useRef } from "react";
-import type { Mesh, MeshBasicMaterial } from "three";
+import { type Camera, type Mesh, type MeshBasicMaterial, type Object3D, Vector3 } from "three";
 
 import { useWorld } from "@/components/World/WorldContext";
 import { hotspots } from "@/data/story/hotspots";
@@ -25,6 +25,20 @@ import styles from "./Hotspot.module.css";
  */
 
 type Glow = { value: number };
+
+/**
+ * Labels stay inside a safe area so an object near the edge of the shot never
+ * puts its label over the name, chapter or controls at the top and bottom.
+ */
+const projected = new Vector3();
+function safeLabelPosition(el: Object3D, camera: Camera, size: { width: number; height: number }) {
+  projected.setFromMatrixPosition(el.matrixWorld).project(camera);
+  const x = (projected.x + 1) * (size.width / 2);
+  const y = (1 - projected.y) * (size.height / 2);
+  const mx = Math.min(150, size.width * 0.3);
+  const top = size.width < 760 ? 120 : 96;
+  return [Math.min(size.width - mx, Math.max(mx, x)), Math.min(size.height - 110, Math.max(top, y))];
+}
 const GlowCtx = createContext<Glow>({ value: 0 });
 /** Children read `.value` (0–1) in their own useFrame to brighten / lift. */
 export const useHotspotGlow = () => useContext(GlowCtx);
@@ -87,7 +101,13 @@ export function Hotspot({ id, children, labelOffset = 0.35, showMark = true }: {
         </mesh>
       )}
       {(hovered || near) && !active && enabled && (
-        <Html position={[h.object[0], h.object[1] + hh / 2 + labelOffset, h.object[2]]} center zIndexRange={[20, 10]} style={{ pointerEvents: "none" }}>
+        <Html
+          position={[h.object[0], h.object[1] + hh / 2 + labelOffset, h.object[2]]}
+          center
+          calculatePosition={safeLabelPosition}
+          zIndexRange={[20, 10]}
+          style={{ pointerEvents: "none" }}
+        >
           <div className={`${styles.label} ${hovered ? styles.hot : ""}`} aria-hidden>
             <span className={styles.verb}>{def.verb}</span>
             <span className={styles.name}>{def.label}</span>
