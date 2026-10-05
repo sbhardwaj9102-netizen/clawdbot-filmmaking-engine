@@ -1,0 +1,106 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) 80px;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 18px 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.bar a:hover {
+  color: var(--white);
+}
+
+.enter {
+  color: var(--amber);
+}
+
+.head {
+  padding: clamp(32px, 8vh, 80px) 0 32px;
+}
+
+.kicker,
+.meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.title {
+  margin: 0.8rem 0;
+  font-family: var(--font-serif);
+  font-size: clamp(44px, 8vw, 110px);
+  line-height: 0.92;
+}
+
+.cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.facts div {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+}
+
+.facts dd {
+  margin-top: 0.3rem;
+  font-family: var(--font-serif);
+  font-size: 26px;
+}
+
+.section {
+  margin-top: 3rem;
+}
+
+.section h2 {
+  margin-bottom: 0.8rem;
+  font-family: var(--font-serif);
+  font-size: 34px;
+}
+
+.section p {
+  max-width: 60ch;
+  color: rgba(236, 230, 218, 0.86);
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.grid img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}

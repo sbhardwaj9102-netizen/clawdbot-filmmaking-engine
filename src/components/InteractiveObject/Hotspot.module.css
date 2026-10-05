@@ -1,0 +1,44 @@
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.42em 0.8em 0.4em;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: rgba(8, 8, 10, 0.55);
+  border: 1px solid rgba(236, 230, 218, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transform: translateY(4px);
+  opacity: 0.75;
+  transition:
+    opacity 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out),
+    border-color 0.35s;
+  animation: in 0.5s var(--ease-out);
+}
+
+.hot {
+  opacity: 1;
+  transform: translateY(0);
+  border-color: var(--amber);
+}
+
+.verb {
+  color: var(--amber);
+}
+
+.name {
+  color: var(--white);
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

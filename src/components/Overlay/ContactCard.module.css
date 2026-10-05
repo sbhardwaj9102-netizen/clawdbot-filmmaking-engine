@@ -1,0 +1,145 @@
+.card {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 72px var(--gutter);
+  background: #000;
+  animation: in 1.6s var(--ease-out) both;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+.inner {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.kicker,
+.title {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.kicker {
+  animation: rise 1.4s var(--ease-out) 0.6s both;
+}
+
+.name {
+  margin-top: 1.6rem;
+  font-family: var(--font-serif);
+  font-size: clamp(54px, 10vw, 150px);
+  line-height: 0.88;
+  letter-spacing: 0.04em;
+  animation: rise 1.6s var(--ease-out) 0.9s both;
+}
+
+.title {
+  margin-top: 1.3rem;
+  color: var(--white);
+  animation: rise 1.4s var(--ease-out) 1.2s both;
+}
+
+.variant {
+  margin-top: 3rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 26px);
+  color: var(--white-dim);
+  animation: rise 1.4s var(--ease-out) 1.6s both;
+}
+
+.cta {
+  margin-top: 0.6rem;
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 4.6vw, 64px);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--amber);
+  animation: rise 1.6s var(--ease-out) 1.9s both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(6px);
+  }
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  width: 100%;
+  margin-top: 3rem;
+  border-top: 1px solid var(--line);
+  animation: rise 1.4s var(--ease-out) 2.3s both;
+}
+
+.links a {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.2rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s;
+}
+
+.links a:hover,
+.links a:focus-visible {
+  background: rgba(226, 162, 94, 0.07);
+}
+
+.links span {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+}
+
+.links b {
+  font-weight: 400;
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+}
+
+.route {
+  margin-top: 2rem;
+  max-width: 60ch;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.8;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+  animation: rise 1.4s var(--ease-out) 2.6s both;
+}
+
+.actions {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  animation: rise 1.4s var(--ease-out) 2.8s both;
+}
+
+.actions button:hover {
+  color: var(--white);
+}

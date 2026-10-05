@@ -1,0 +1,152 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  padding: 0 var(--gutter);
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.hold {
+  max-width: 18ch;
+  font-family: var(--font-serif);
+  font-size: clamp(34px, 5.2vw, 84px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.75);
+  animation: hold 3.2s var(--ease-out) both;
+}
+
+@keyframes hold {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(14px) scale(1.02);
+  }
+  18% {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    filter: blur(4px);
+  }
+}
+
+.block {
+  display: grid;
+  gap: 0.15em;
+}
+
+.line {
+  display: block;
+  font-family: var(--font-serif);
+  text-transform: uppercase;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  animation: line 1.2s var(--ease-out) forwards;
+}
+
+.sub {
+  display: block;
+  margin-top: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  opacity: 0;
+  animation: line 1.2s var(--ease-out) forwards;
+}
+
+@keyframes line {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* big chapter titles, lower left */
+.title {
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-bottom: 17vh;
+}
+.title .line {
+  font-size: clamp(44px, 7vw, 112px);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+}
+
+/* statements, centred on the frame */
+.statement {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.statement .line {
+  font-size: clamp(26px, 3.4vw, 54px);
+  line-height: 1.04;
+  letter-spacing: 0.02em;
+}
+.statement .sub {
+  max-width: 44ch;
+  margin-inline: auto;
+}
+
+/* small captions above the controls */
+.caption {
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 15vh;
+  text-align: center;
+}
+.caption .line {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--white-dim);
+}
+
+/* screenplay slug line, top left */
+.slug {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 15vh;
+}
+.slug .line {
+  font-family: "Courier New", var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--white-dim);
+}
+
+@media (max-width: 760px) {
+  .title {
+    padding-bottom: 22vh;
+  }
+  .statement {
+    align-items: flex-start;
+    padding-top: 20vh;
+  }
+  .caption {
+    padding-bottom: 20vh;
+  }
+}

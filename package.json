@@ -1,30 +1,40 @@
 {
   "name": "satyam-bhardwaj-portfolio",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Cinematic motion portfolio prototype for film producer Satyam Bhardwaj.",
+  "description": "Satyam Bhardwaj — Producer · Strategist. An interactive, real-time 3D narrative portfolio.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/optimize-textures.mjs && next dev",
+    "prebuild": "node scripts/optimize-textures.mjs",
     "build": "next build",
     "start": "npx serve@latest out",
     "typecheck": "tsc --noEmit",
-    "placeholders": "python3 scripts/placeholders/generate.py",
-    "build:preview": "next build && node scripts/static-preview.mjs"
+    "textures": "node scripts/optimize-textures.mjs --force",
+    "resume:pdf": "node scripts/resume-pdf.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
+    "placeholders": "python3 scripts/placeholders/generate.py"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource/instrument-serif": "^5.3.0",
-    "framer-motion": "^14.0.0",
-    "lenis": "^1.3.26",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@react-three/postprocessing": "^3.1.3",
     "next": "^16.3.8",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "postprocessing": "^6.39.5",
+    "react": "~19.3.0",
+    "react-dom": "~19.3.0",
+    "three": "^0.186.1",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
+    "playwright-core": "~1.56.1",
+    "sharp": "^0.35.5",
     "typescript": "^5.9.3"
   }
 }

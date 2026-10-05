@@ -1,0 +1,95 @@
+.wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--gutter) 60px;
+  background: rgba(4, 4, 5, 0.86);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: in 0.6s var(--ease-out) both;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 18px 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.label {
+  color: var(--amber);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem 1.4rem;
+}
+
+.actions a,
+.actions button {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  border-bottom: 1px solid transparent;
+}
+
+.actions a:hover,
+.actions button:hover {
+  color: var(--white);
+  border-color: var(--amber);
+}
+
+.actions .download {
+  padding: 0.7rem 1rem;
+  color: var(--black);
+  background: var(--amber);
+  border: 0;
+}
+
+.actions .download:hover {
+  color: var(--black);
+  background: var(--white);
+}
+
+.actions kbd {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  font-family: inherit;
+  font-size: 9px;
+}
+
+.sheet {
+  animation: up 0.9s var(--ease-out) both;
+}
+
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotateX(8deg);
+  }
+}

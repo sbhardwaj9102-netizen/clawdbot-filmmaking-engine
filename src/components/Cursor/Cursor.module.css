@@ -1,0 +1,62 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.cursor[data-visible="1"] {
+  opacity: 1;
+}
+
+.ring {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(236, 230, 218, 0.55);
+  border-radius: 50%;
+  transition:
+    transform 0.45s var(--ease-out),
+    border-color 0.3s,
+    background 0.3s;
+}
+
+.ring::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.label {
+  position: absolute;
+  left: 22px;
+  top: -6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  color: var(--white-dim);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.hot .ring {
+  transform: scale(1.9);
+  border-color: var(--amber);
+  background: rgba(226, 162, 94, 0.08);
+}
+
+.hot .label {
+  left: 34px;
+  color: var(--amber);
+}

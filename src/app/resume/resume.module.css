@@ -1,0 +1,56 @@
+.page {
+  min-height: 100vh;
+  padding: 0 var(--gutter) 64px;
+  background: #1a1b1e;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 18px 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.bar div {
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+}
+
+.bar a:hover {
+  color: var(--white);
+}
+
+.download {
+  padding: 0.7rem 1rem;
+  color: var(--black) !important;
+  background: var(--amber);
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  :global(html),
+  :global(body) {
+    background: #fff !important;
+  }
+  .page {
+    min-height: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .bar {
+    display: none;
+  }
+}

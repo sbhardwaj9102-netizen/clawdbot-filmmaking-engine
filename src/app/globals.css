@@ -1,0 +1,224 @@
+/* ------------------------------------------------------------------
+   Design tokens — black · charcoal · deep navy · warm amber · muted gold · soft white
+   ------------------------------------------------------------------ */
+:root {
+  --black: #050506;
+  --charcoal: #121316;
+  --charcoal-2: #1a1b1f;
+  --navy: #0c1424;
+  --amber: #e2a25e;
+  --gold: #b8955a;
+  --white: #ece6da;
+  --white-dim: rgba(236, 230, 218, 0.62);
+  --white-faint: rgba(236, 230, 218, 0.34);
+  --line: rgba(236, 230, 218, 0.14);
+  --line-strong: rgba(236, 230, 218, 0.26);
+  --glass: rgba(10, 10, 12, 0.62);
+
+  --paper: #efe9dd;
+  --paper-ink: #141414;
+  --paper-dim: rgba(20, 20, 20, 0.58);
+  --paper-line: rgba(20, 20, 20, 0.14);
+
+  --font-serif: "Instrument Serif", "Times New Roman", serif;
+  --font-sans: "Archivo Variable", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --gutter: clamp(16px, 3.2vw, 44px);
+  --ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--black);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--black);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--black);
+}
+
+:focus-visible {
+  outline: 1px solid var(--amber);
+  outline-offset: 4px;
+}
+
+/* the experience owns the viewport */
+html.experience,
+html.experience body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+html.has-cursor .stage,
+html.has-cursor .stage * {
+  cursor: none;
+}
+
+/* ------------------------------------------------------------------
+   Shared type
+   ------------------------------------------------------------------ */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 999;
+  padding: 0.6rem 1rem;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transform: translateY(-220%);
+}
+.skip:focus {
+  transform: none;
+}
+
+/* film grain + lens falloff over the experience (cheap, every tier) */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("/assets/site/grain.png");
+  animation: grain 0.9s steps(6) infinite;
+}
+
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-3%, 2%);
+  }
+  40% {
+    transform: translate(2%, -3%);
+  }
+  60% {
+    transform: translate(-2%, -1%);
+  }
+  80% {
+    transform: translate(3%, 3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.12s !important;
+}

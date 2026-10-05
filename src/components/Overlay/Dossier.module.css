@@ -1,0 +1,256 @@
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  width: min(44vw, 520px);
+  display: flex;
+  flex-direction: column;
+  padding: 88px clamp(22px, 3vw, 40px) 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(90deg, rgba(6, 6, 8, 0.55), rgba(6, 6, 8, 0.9) 30%);
+  border-left: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: slide 0.8s var(--ease-out) both;
+  touch-action: pan-y;
+}
+
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+
+.head {
+  position: absolute;
+  top: 26px;
+  left: clamp(22px, 3vw, 40px);
+  right: clamp(22px, 3vw, 40px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.verb {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--amber);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.close:hover {
+  color: var(--white);
+}
+
+.close kbd {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  font-family: inherit;
+  font-size: 9px;
+}
+
+.body {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: clamp(30px, 3vw, 46px);
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+}
+
+.text {
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: rgba(236, 230, 218, 0.86);
+  max-width: 46ch;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.facts div {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+}
+
+.facts dd {
+  margin-top: 0.25rem;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.list {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+
+.list li {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.list b {
+  display: block;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.list em {
+  display: block;
+  font-style: normal;
+  font-size: 13.5px;
+  color: var(--white-dim);
+}
+
+.n {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  padding-top: 0.2rem;
+}
+
+.media {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.media button {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition:
+    transform 0.8s var(--ease-out),
+    opacity 0.4s;
+  opacity: 0.88;
+}
+
+.media button:hover img {
+  transform: scale(1.04);
+  opacity: 1;
+}
+
+.media span {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--white);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+.note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.link {
+  justify-self: start;
+  padding: 0.75rem 1.1rem;
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition:
+    border-color 0.3s,
+    background 0.3s;
+}
+
+.link:hover {
+  border-color: var(--amber);
+  background: rgba(226, 162, 94, 0.08);
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 2rem;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+}
+
+@media (max-width: 899px) {
+  .panel {
+    top: auto;
+    left: 0;
+    width: auto;
+    max-height: 58vh;
+    padding: 64px var(--gutter) calc(24px + env(safe-area-inset-bottom));
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    background: rgba(6, 6, 8, 0.92);
+    animation-name: sheet;
+  }
+  .head {
+    top: 18px;
+    left: var(--gutter);
+    right: var(--gutter);
+  }
+  @keyframes sheet {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+  }
+  .footer {
+    display: none;
+  }
+}

@@ -1,0 +1,137 @@
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow-y: auto;
+  background: rgba(4, 4, 5, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: in 0.6s var(--ease-out) both;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) var(--gutter) 60px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+
+.head button {
+  display: inline-flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.head kbd {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  font-family: inherit;
+  font-size: 9px;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  margin-top: clamp(2rem, 8vh, 5rem);
+}
+
+.label {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.scenes {
+  border-top: 1px solid var(--line);
+}
+
+.scenes button {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 3.4vw, 44px);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition:
+    color 0.3s,
+    padding 0.4s var(--ease-out);
+}
+
+.scenes button:hover,
+.scenes button:focus-visible {
+  color: var(--amber);
+  padding-left: 0.6rem;
+}
+
+.scenes button[aria-current] span::before {
+  content: "● ";
+  font-size: 0.4em;
+  vertical-align: middle;
+  color: var(--amber);
+}
+
+.scenes em {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--white-faint);
+}
+
+.quick {
+  display: grid;
+  gap: 0.2rem;
+  margin-bottom: 2.4rem;
+}
+
+.quick a,
+.quick button {
+  display: inline-block;
+  padding: 0.45rem 0;
+  text-align: left;
+  font-size: 15px;
+  color: var(--white);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.quick a:hover,
+.quick button:hover {
+  border-color: var(--amber);
+}
+
+@media (max-width: 760px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+}
